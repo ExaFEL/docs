@@ -93,4 +93,6 @@ rsync -t psexport.slac.stanford.edu:/reg/g/psdm/data/ExpNameDb/experiment-db.dat
 
 With the above steps the psana-cctbx.xfel build should now be installed, with all accessible commands working.
 
+
 ## Testing the psana-cctbx.xfel build
+To test the previous bbuild steps, we will run through and document the processing of an example dataset.
