@@ -1,6 +1,11 @@
--
+---
+layout: post
+title: ExaFEL processing steps
+---
+
+--
 # ExaFEL processing steps
--
+--
 
 To ensure the port of cctbx.xfel to Cori goes smoothly, it is necessary to identify and outline the relevant steps required to process data from LCLS.
 
