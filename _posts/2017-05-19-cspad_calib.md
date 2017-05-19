@@ -1,13 +1,14 @@
 ---
 layout: post
-title: Calibrating the CSPAD detector
+title: Calibrating the CSPad detector with experimental data
 permalink: /:title.html
 ---
 <script type="text/javascript" async
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-With the code verified to work (see <asdf>) the next step is to work through the data processing pipeline using some real data.
+With the toolchain [built, installed]({{ site.baseurl }}{% post_url 2017-05-17-psana-cctbx-install %}) and [verified to work]({{ site.baseurl }}{% post_url 2017-05-18-Build-test %})
+the next step is to work through the processing pipeline using some real data.
 
 For the processing steps listed below, we will be making use of the guidelines given by this [CCN newsletter article](http://www.phenix-online.org/newsletter/CCN_2016_07.pdf#page=18). Additional information can be found on the [cctbx.xfel wiki](http://viper.lbl.gov/cctbx.xfel/index.php/Main_Page). As per the information in the newsletter article, the process of operating the cctbx.xfel pipeline involves three main stages:
 
@@ -72,7 +73,7 @@ $$
 and for the composite maximum,
 
 $$ \begin{align}
-I_{jk}^{\textrm{max}} &\leq \approx 300 &&\rightarrow \textrm{dead pixel,}  \\
+I_{jk}^{\textrm{max}} &\lesssim 300 &&\rightarrow \textrm{dead pixel,}  \\
     \end{align}
 $$
 
@@ -84,7 +85,7 @@ $$ F_{jk} = \begin{cases}
 \end{cases}.
 $$
 
-where $$ \wedge$$ denotes a logical AND operation. In this way, only the values that are trusted "sieve" through the mask and are used in further analysis.
+where $$ \wedge$$ denotes a logical AND operation. Performing an element-wise (Hadamard) product of the resulting mask values with the collected data allows only the values that are trusted to "sieve" through the mask and be used in further analysis.
 
 ### Creating the mask
 To create the mask we make use of the averaged and standard deviation data for a dark run as discussed above, as well as a maximum image of a bright run we intend to apply the mask to. Assuming `--run=54` for a dark run, and `--run=74` for a bright run, we construct the mask as follows:
@@ -101,7 +102,7 @@ To create the mask we make use of the averaged and standard deviation data for a
   ```
 
 ### Quadrant alignment
-The CSPAD detector features $$32\times 2$$ Si detectors, of which are distributed over four quadrants for the detector. It is necessary to determine the optimal alignment of these quadrants relative to one another, as it can vary across experiments due to the modularity of the detector. As such, one method to obtain and correct for the inter-quadrant spacings is through the use of powder diffraction rings. This assumes crystals of all possible orientations contribute to the diffraction process, and therefore generate rings at a radius determined by the beam wavelength. This is due to all possible Fourier components (Bragg peaks) being observed. By assuming that these rings are concentric over a $$ 2\pi$$ angular sweep, the detectors can be positioned to optimise this annular condition.
+The CSPad detector features $$32\times 2$$ Si detectors, of which are distributed over four quadrants for the detector. It is necessary to determine the optimal alignment of these quadrants relative to one another, as it can vary across experiments due to the modularity of the detector. As such, one method to obtain and correct for the inter-quadrant spacings is through the use of powder diffraction rings. This assumes crystals of all possible orientations contribute to the diffraction process, and therefore generate rings at a radius determined by the beam wavelength. This is due to all possible Fourier components (Bragg peaks) being observed. By assuming that these rings are concentric over a $$ 2\pi$$ angular sweep, the detectors can be positioned to optimise this annular condition.
 
 This is checked with the command `cspad.quadrants_cbf`. Assuming the beam centre is appropriately positioned relative to the detector quadrants, a rotation of the quadrant through $$ \pi/4$$ about the beam center yield high correlation with the unrotated data. The above command performs a planar search for the offsets that optimise this correlation, and use these to determine the alignment of the quadrants. Following the correlation examination, the command outputs a new file with the corrected quadrant values. Assuming the composite maximum for a bright run (`--run=74`) the command is run as follows:
 
@@ -134,13 +135,18 @@ cxi.cspad_average *_max_*.cbf -m all_max.cbf
 cspad.quadrants_cbf all_max.cbf
 ```
 
+With the quadrant positions now refined, the calibration files must be updated to reflect the new parameters.
 
-Assuming we have maxima for all data runs in our experiment, we can
+
+Full details on the CSPad detector geometry and alignment information can be found [here](https://confluence.slac.stanford.edu/display/PSDM/Detector+Geometry) and (here)[https://confluence.slac.stanford.edu/display/PSDM/CSPAD+Geometry+and+Alignment].
+
+
+
 
 Note:
-  Running the calibman command line interface requires having the MySQL package for python. This is installed using conda as
+  The CCN newsletter article mentions performing manual calibration using the LCLS tool `calibman`, which is installed as part of psana. Running the calibman command line interface requires having the MySQL package available for python. This is installed with conda as
 
   ```bash
 conda install mysql-python
   ```
-  Note that calibman requires a user to be within the LCLS psana environment, and currently does not work on external systems.
+  However, note that calibman requires a user to be within the LCLS psana environment, and currently does not work on external systems.
