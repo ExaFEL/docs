@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>/jekyll/update/2017/05/15/welcome-to-jekyll.html</loc>
+<loc>http://localhost:4000/jekyll/update/2017/05/15/welcome-to-jekyll.html</loc>
 <lastmod>2017-05-15T13:30:19-07:00</lastmod>
 </url>
 <url>
-<loc>/psana-cctbx-install.html</loc>
+<loc>http://localhost:4000/psana-cctbx-install.html</loc>
 <lastmod>2017-05-17T00:00:00-07:00</lastmod>
 </url>
 <url>
-<loc>/Build-test.html</loc>
+<loc>http://localhost:4000/Build-test.html</loc>
 <lastmod>2017-05-18T00:00:00-07:00</lastmod>
 </url>
 <url>
-<loc>/about/</loc>
+<loc>http://localhost:4000/cspad_calib.html</loc>
+<lastmod>2017-05-19T00:00:00-07:00</lastmod>
 </url>
 <url>
-<loc>/</loc>
+<loc>http://localhost:4000/about/</loc>
+</url>
+<url>
+<loc>http://localhost:4000/</loc>
 </url>
 </urlset>
