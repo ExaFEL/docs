@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Installing the psana-cctbx toolchain</title>
+  <meta name="description" content="To ensure the port of cctbx.xfel to Cori goes smoothly, it is necessary to identify and outline the relevant steps required to process data from LCLS.">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="/psana-cctbx-install.html">
+  <link rel="alternate" type="application/rss+xml" title="ExaFEL Research Site" href="/feed.xml">
+  
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">ExaFEL Research Site</a>
+  
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Installing the psana-cctbx toolchain</h1>
+    <p class="post-meta">
+      <time datetime="2017-05-17T00:00:00-07:00" itemprop="datePublished">
+        
+        May 17, 2017
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>To ensure the port of cctbx.xfel to Cori goes smoothly, it is necessary to identify and outline the relevant steps required to process data from LCLS.</p>
+
+<p>As a quick guide, I will outline the steps required for this, and introduce example code where necessary.</p>
+
+<h2 id="installing-the-psana-cctbxxfel-toolchain">Installing the psana-cctbx.xfel toolchain</h2>
+
+<p>Firstly, we must ensure that the environment is correctly initialised to process the data. The following steps are a summary of those given for <a href="https://confluence.slac.stanford.edu/display/PSDM/Offsite+Installation#OffsiteInstallation-InstallationofaSingleCondaEnvironment">psana</a>, and for <a href="http://viper.lbl.gov/cctbx.xfel/index.php/Installation">cctbx.xfel</a>. It is encouraged to read the documentation at these locations for further information. The following commands assume a bash environment by default (alternative shells should also work, with alternative instructions given where necessary).</p>
+
+<ol>
+  <li>Install <a href="https://conda.io/miniconda.html">Miniconda</a> for Python 2.7.</li>
+  <li>
+    <p>Once installed, update the conda installation:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>  conda update -y conda
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Create a conda environment for the installation:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> conda create -n myEnv
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Activate the newly created conda environment:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="nb">source </span>activate myEnv
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Install psana from the LCLS conda channel, replacing <code class="highlighter-rouge">X</code> with the appropriate RH Linux version {<code class="highlighter-rouge">5,6,7</code>}:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> conda install -y --channel lcls-rhelX psana-conda
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Install the following additional dependencies for building and running psana and cctbx:</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code> conda install h5py mpich2 wxpython pil libtiff
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Create a permanent location to install and build cctbx (referred to as <code class="highlighter-rouge">$PERM</code> in the following steps):</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="nb">export </span><span class="nv">PERM</span><span class="o">=</span>&lt;my_dir&gt;; mkdir <span class="nv">$PERM</span>
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Copy the experiment name database from SLAC to your local system. This step assumes the end-user has a SLAC account, and can access <em>psexport.slac.stanford.edu</em>:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir -p <span class="nv">$PERM</span>/psdm/data/ExpNameDb;
+rsync -t psexport.slac.stanford.edu:/reg/g/psdm/data/ExpNameDb/experiment-db.dat <span class="nv">$PERM</span>/psdm/data/ExpNameDb/
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Export the following psana environment variables:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="nb">export </span><span class="nv">SIT_DATA</span><span class="o">=</span><span class="nv">$PERM</span>/psdm/data
+ <span class="nb">export </span><span class="nv">SIT_ROOT</span><span class="o">=</span><span class="nv">$PERM</span>/psdm/data
+ <span class="nb">export </span><span class="nv">SIT_PSDM_DATA</span><span class="o">=</span><span class="nv">$SIT_ROOT</span>
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Create a cctbx.xfel directory, and acquire the bootstrap program for building and installation (<code class="highlighter-rouge">--no-check-certificate</code> can often be required):</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir <span class="nv">$PERM</span>/cctbx.xfel; <span class="nb">cd</span> <span class="nv">$PERM</span>/cctbf.xfel
+wget https://raw.githubusercontent.com/cctbx/cctbx_project/master/libtbx/auto_build/bootstrap.py --no-check-certificate
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Download and build the cctbx.xfel packages using the conda environment activated python. This step assumes the end-user has access to the LBNL system <strong>cci</strong>. For the purpose of this guide we will currently focus only on LBNL developers.</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>python bootstrap.py hot update --builder<span class="o">=</span>xfel --cciuser<span class="o">=</span>&lt;cciusername&gt; --sfuser<span class="o">=</span>&lt;githubusername&gt;
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Assuming C++ compilers exist on the path, the following step will build the XFEL version of cctbx; specify the number of available cores to enable parallel compilation:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>python bootstrap.py build --builder<span class="o">=</span>xfel --with-python<span class="o">=</span><span class="sb">`</span>which python<span class="sb">`</span> --nproc<span class="o">=</span>&lt;<span class="c"># cores available for compile&gt;</span>
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>The path environment variables are set up by running the following command:</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">source</span> <span class="nv">$PERM</span>/cctbx.xfel/build/setpaths.sh <span class="c">#Bash users</span>
+</code></pre>
+    </div>
+    <p>or</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">source</span> <span class="nv">$PERM</span>/cctbx.xfel/build/setpaths.csh <span class="c">#csh users</span>
+</code></pre>
+    </div>
+  </li>
+</ol>
+
+<p>With the above steps the psana-cctbx.xfel build should now be installed, with all accessible commands working.</p>
+
+  </div>
+
+  
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">ExaFEL Research Site</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              ExaFEL Research Site
+            
+            </li>
+            
+            <li><a href="mailto:loriordan@lbl.gov">loriordan@lbl.gov</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
