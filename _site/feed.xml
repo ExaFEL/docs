@@ -1,5 +1,110 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-05-17T16:51:17-07:00</updated><id>http://localhost:4000/</id><title type="html">ExaFEL Research Site</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
-</subtitle><entry><title type="html">Welcome to Jekyll!</title><link href="http://localhost:4000/jekyll/update/2017/05/15/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Jekyll!" /><published>2017-05-15T13:30:19-07:00</published><updated>2017-05-15T13:30:19-07:00</updated><id>http://localhost:4000/jekyll/update/2017/05/15/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2017/05/15/welcome-to-jekyll.html">&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\frac{1}{2}&lt;/script&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-05-18T17:11:40-07:00</updated><id>http://localhost:4000/</id><title type="html">ExaFEL Research Site</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+</subtitle><entry><title type="html">Testing the psana-cctbx.xfel build</title><link href="http://localhost:4000/Build-test.html" rel="alternate" type="text/html" title="Testing the psana-cctbx.xfel build" /><published>2017-05-18T00:00:00-07:00</published><updated>2017-05-18T00:00:00-07:00</updated><id>http://localhost:4000/Build-test</id><content type="html" xml:base="http://localhost:4000/Build-test.html"></content><author><name></name></author><summary type="html"></summary></entry><entry><title type="html">Installing the psana-cctbx toolchain</title><link href="http://localhost:4000/psana-cctbx-install.html" rel="alternate" type="text/html" title="Installing the psana-cctbx toolchain" /><published>2017-05-17T00:00:00-07:00</published><updated>2017-05-17T00:00:00-07:00</updated><id>http://localhost:4000/psana-cctbx-install</id><content type="html" xml:base="http://localhost:4000/psana-cctbx-install.html">&lt;p&gt;To ensure the port of cctbx.xfel to Cori goes smoothly, it is necessary to identify and outline the relevant steps required to process data from LCLS.&lt;/p&gt;
+
+&lt;p&gt;As a quick guide, I will outline the steps required for this, and introduce example code where necessary.&lt;/p&gt;
+
+&lt;h2 id=&quot;installing-the-psana-cctbxxfel-toolchain&quot;&gt;Installing the psana-cctbx.xfel toolchain&lt;/h2&gt;
+
+&lt;p&gt;Firstly, we must ensure that the environment is correctly initialised to process the data. The following steps are a summary of those given for &lt;a href=&quot;https://confluence.slac.stanford.edu/display/PSDM/Offsite+Installation#OffsiteInstallation-InstallationofaSingleCondaEnvironment&quot;&gt;psana&lt;/a&gt;, and for &lt;a href=&quot;http://viper.lbl.gov/cctbx.xfel/index.php/Installation&quot;&gt;cctbx.xfel&lt;/a&gt;. It is encouraged to read the documentation at these locations for further information. The following commands assume a bash environment by default (alternative shells should also work, with alternative instructions given where necessary).&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Install &lt;a href=&quot;https://conda.io/miniconda.html&quot;&gt;Miniconda&lt;/a&gt; for Python 2.7.&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Once installed, update the conda installation:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  conda update -y conda
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create a conda environment for the installation:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; conda create -n myEnv
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Activate the newly created conda environment:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;activate myEnv
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Install psana from the LCLS conda channel, replacing &lt;code class=&quot;highlighter-rouge&quot;&gt;X&lt;/code&gt; with the appropriate RH Linux version {&lt;code class=&quot;highlighter-rouge&quot;&gt;5,6,7&lt;/code&gt;}:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; conda install -y --channel lcls-rhelX psana-conda
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Install the following additional dependencies for building and running psana and cctbx:&lt;/p&gt;
+
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; conda install h5py mpich2 wxpython pil libtiff
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create a permanent location to install and build cctbx (referred to as &lt;code class=&quot;highlighter-rouge&quot;&gt;$PERM&lt;/code&gt; in the following steps):&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;PERM&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;my_dir&amp;gt;; mkdir &lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Copy the experiment name database from SLAC to your local system. This step assumes the end-user has a SLAC account, and can access &lt;em&gt;psexport.slac.stanford.edu&lt;/em&gt;:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir -p &lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/psdm/data/ExpNameDb;
+rsync -t psexport.slac.stanford.edu:/reg/g/psdm/data/ExpNameDb/experiment-db.dat &lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/psdm/data/ExpNameDb/
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Export the following psana environment variables:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SIT_DATA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/psdm/data
+ &lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SIT_ROOT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/psdm/data
+ &lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SIT_PSDM_DATA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$SIT_ROOT&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create a cctbx.xfel directory, and acquire the bootstrap program for building and installation (&lt;code class=&quot;highlighter-rouge&quot;&gt;--no-check-certificate&lt;/code&gt; can often be required):&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir &lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/cctbx.xfel; &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/cctbf.xfel
+wget https://raw.githubusercontent.com/cctbx/cctbx_project/master/libtbx/auto_build/bootstrap.py --no-check-certificate
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Download and build the cctbx.xfel packages using the conda environment activated python. This step assumes the end-user has access to the LBNL system &lt;strong&gt;cci&lt;/strong&gt;. For the purpose of this guide we will currently focus only on LBNL developers.&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;python bootstrap.py hot update --builder&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;xfel --cciuser&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;cciusername&amp;gt; --sfuser&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;githubusername&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Assuming C++ compilers exist on the path, the following step will build the XFEL version of cctbx; specify the number of available cores to enable parallel compilation:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;python bootstrap.py build --builder&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;xfel --with-python&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;which python&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt; --nproc&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;&lt;span class=&quot;c&quot;&gt;# cores available for compile&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The path environment variables are set up by running the following command:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/cctbx.xfel/build/setpaths.sh &lt;span class=&quot;c&quot;&gt;#Bash users&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;p&gt;or&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$PERM&lt;/span&gt;/cctbx.xfel/build/setpaths.csh &lt;span class=&quot;c&quot;&gt;#csh users&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;With the above steps the psana-cctbx.xfel build should now be installed, with all accessible commands working.&lt;/p&gt;</content><author><name></name></author><summary type="html">To ensure the port of cctbx.xfel to Cori goes smoothly, it is necessary to identify and outline the relevant steps required to process data from LCLS.</summary></entry><entry><title type="html">Welcome to Jekyll!</title><link href="http://localhost:4000/jekyll/update/2017/05/15/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Welcome to Jekyll!" /><published>2017-05-15T13:30:19-07:00</published><updated>2017-05-15T13:30:19-07:00</updated><id>http://localhost:4000/jekyll/update/2017/05/15/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2017/05/15/welcome-to-jekyll.html">&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\frac{1}{2}&lt;/script&gt;
 You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
 
 &lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
