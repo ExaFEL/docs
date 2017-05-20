@@ -54,7 +54,7 @@ The above command generates average (`cxim1416_avg-r0054.cbf`), standard deviati
 The XTC file naming scheme is composed of a numerical identifier (`eXYZ-`), with mapping to name determined from `$PERM/psdm/data/ExpNameDb/experiment-db.dat`, followed by the run number (`rXYZW-`) indicating a specific instance of data collection. Given the throughput of data, there are multiple data acquisition (DAQ) systems working simulataneously on the detector, and each output their own data stream (`sXY-`). The recombination of this data is performed by psana, and abstracted away from cctbx.xfel users. Next, the chunk number is given, wherein the data is broken up into chunks of a given size. As the data is streamed from the detector, when a certain threshold is reached, the data can be broken into a new chunk (`cXY`). For the above command, the processing would be performed on the streams matching `e780-r0054-s[0-9][0-9]-c[0-9][0-9].xtc`.
 
 ## Pixel mask
-From the previous step, we have created three images which can be used to determine which pixels can be trusted for the experimental data based on the detected pixel intensities measured in analogue to digital units (ADU), $$I_{jk}^{\xi}$$, where $$j,k$$ are indices along the XY plane, and $$\xi \in \{\textrm{avg,std,max} \}$$ denotes the average, standard deviation, and maximum images respectively. For the average image data:
+From the previous step, we have created three images which can be used to determine which pixels can be trusted for the experimental data. These are based on the detected pixel intensities, measured in analogue-to-digital units (ADU), $$I_{jk}^{\xi}$$, where $$j,k$$ are indices along the XY plane, and $$\xi \in \{\textrm{avg,std,max} \}$$ denotes the average, standard deviation, and maximum images respectively. For the average image data:
 
 $$ \begin{align}
 I_{jk}^{\textrm{avg}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
@@ -134,12 +134,26 @@ indicating very low correlations overall ($$\textrm{CC} \approx 16\%$$). To bett
 cxi.cspad_average *_max_*.cbf -m all_max.cbf
 cspad.quadrants_cbf all_max.cbf
 ```
+with the resulting output file named `all_max_cc.cbf`. The refined alignment data will be stored in this CBF file, and must be converted to the appropriate SLAC file format before use. The specific file format is unique to SLAC, with full details on the CSPad detector geometry, alignment and associated file format information found [here](https://confluence.slac.stanford.edu/display/PSDM/Detector+Geometry) and [here](https://confluence.slac.stanford.edu/display/PSDM/CSPAD+Geometry+and+Alignment). This conversion is performed by running the command
 
-With the quadrant positions now refined, the calibration files must be updated to reflect the new parameters.
+```bash
+cxi.cbfheader2slaccalib cbf_header=all_max_cc.cbf
+```
+with the command generating `0-end.data` as an output file. The file must then be placed into the `calib` folder in the following location:
 
+```bash
+mv $PERM/psdm/cxi/<experiment name>/calib/<detector type>/<detector name>/geometry/0-end.data $PERM/psdm/cxi/<experiment name>/calib/<detector type>/<detector name>/geometry/0-end.data.v0;
 
-Full details on the CSPad detector geometry and alignment information can be found [here](https://confluence.slac.stanford.edu/display/PSDM/Detector+Geometry) and (here)[https://confluence.slac.stanford.edu/display/PSDM/CSPAD+Geometry+and+Alignment].
+mv ./0-end.data $PERM/psdm/cxi/<experiment name>/calib/<detector type>/<detector name>/geometry/0-end.data.v1
+```
 
+Note that due to the presence of the previous `0-end.data` geometry calibration file, we renamed this to indicate it was version 0, and moved the refined file to the location with post-fix for version 1. This allows for a history of the files to be made, and is performed also for subsequent refinements. For the `cxim1416` dataset used previously, the above command becomes
+
+```bash
+mv $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v0;
+
+mv ./0-end.data $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v1
+```
 
 
 
