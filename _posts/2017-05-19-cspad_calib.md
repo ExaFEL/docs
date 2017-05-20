@@ -54,7 +54,7 @@ The above command generates average (`cxim1416_avg-r0054.cbf`), standard deviati
 The XTC file naming scheme is composed of a numerical identifier (`eXYZ-`), with mapping to name determined from `$PERM/psdm/data/ExpNameDb/experiment-db.dat`, followed by the run number (`rXYZW-`) indicating a specific instance of data collection. Given the throughput of data, there are multiple data acquisition (DAQ) systems working simulataneously on the detector, and each output their own data stream (`sXY-`). The recombination of this data is performed by psana, and abstracted away from cctbx.xfel users. Next, the chunk number is given, wherein the data is broken up into chunks of a given size. As the data is streamed from the detector, when a certain threshold is reached, the data can be broken into a new chunk (`cXY`). For the above command, the processing would be performed on the streams matching `e780-r0054-s[0-9][0-9]-c[0-9][0-9].xtc`.
 
 ## Pixel mask
-From the previous step, we have created three images which can be used to determine which pixels can be trusted for the experimental data. These are based on the detected pixel intensities, measured in analogue-to-digital units (ADU), $$I_{jk}^{\xi}$$, where $$j,k$$ are indices along the XY plane, and $$\xi \in \{\textrm{avg,std,max} \}$$ denotes the average, standard deviation, and maximum images respectively. For the average image data:
+From the previous step, we have created three images which can be used to determine which pixels can be trusted for the experimental data. These are based on the detected pixel intensities, measured in analogue-to-digital units (ADU), $$I_{jk}^{\xi}$$, where $$j,k$$ are pixel indices along the XY plane, and $$\xi \in \{\textrm{avg,std,max} \}$$ denotes the average, standard deviation, and maximum images respectively. For the average image data:
 
 $$ \begin{align}
 I_{jk}^{\textrm{avg}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
@@ -77,7 +77,7 @@ I_{jk}^{\textrm{max}} &\lesssim 300 &&\rightarrow \textrm{dead pixel,}  \\
     \end{align}
 $$
 
-where the composite maximum has only a lower bounded value. Assuming a 1/0 Boolean flag for every pixel, and the above intensity ranges, we can define a mask for trusted and untrusted pixels, $$F_{j,k}$$, as
+where the composite maximum has only a lower bounded value. Assuming a 1/0 Boolean flag for every pixel, and the above intensity ranges, we can define a mask for trusted and untrusted pixels, $$F_{jk}$$, as
 
 $$ F_{jk} = \begin{cases}
 1, & \textrm{if } (0 \leq I_{jk}^{\textrm{avg}} \leq 2\times10^3) \wedge (0 \leq I_{jk}^{\textrm{std}} \leq 10) \wedge (300 \leq I_{jk}^{\textrm{max}}) \\
@@ -102,7 +102,7 @@ To create the mask we make use of the averaged and standard deviation data for a
   ```
 
 ### Quadrant alignment
-The CSPad detector features $$32\times 2$$ Si detectors, of which are distributed over four quadrants for the detector. It is necessary to determine the optimal alignment of these quadrants relative to one another, as it can vary across experiments due to the modularity of the detector. As such, one method to obtain and correct for the inter-quadrant spacings is through the use of powder diffraction rings. This assumes crystals of all possible orientations contribute to the diffraction process, and therefore generate rings at a radius determined by the beam wavelength. This is due to all possible Fourier components (Bragg peaks) being observed. By assuming that these rings are concentric over a $$ 2\pi$$ angular sweep, the detectors can be positioned to optimise this annular condition.
+The CSPad detector features $$32\times 2$$ Si detectors, of which are distributed over four quadrants for the detector. It is necessary to determine the optimal alignment of these quadrants relative to one another, as it can vary across experiments due to the modularity of the detector. As such, one method to obtain and correct for the inter-quadrant spacings is through the use of powder diffraction rings. This assumes crystals of all possible orientations contribute to the diffraction process, and therefore generate rings at a radius determined by the beam wavelength. This is due to all possible Fourier components (Bragg peaks) being observed. By assuming that these rings are concentric over a $$ 2\pi$$ angular sweep, the quadrant offsets can be adjusted to optimise this annular condition.
 
 This is checked with the command `cspad.quadrants_cbf`. Assuming the beam centre is appropriately positioned relative to the detector quadrants, a rotation of the quadrant through $$ \pi/4$$ about the beam center yield high correlation with the unrotated data. The above command performs a planar search for the offsets that optimise this correlation, and use these to determine the alignment of the quadrants. Following the correlation examination, the command outputs a new file with the corrected quadrant values. Assuming the composite maximum for a bright run (`--run=74`) the command is run as follows:
 
@@ -143,7 +143,6 @@ with the command generating `0-end.data` as an output file. The file must then b
 
 ```bash
 mv $PERM/psdm/cxi/<experiment name>/calib/<detector type>/<detector name>/geometry/0-end.data $PERM/psdm/cxi/<experiment name>/calib/<detector type>/<detector name>/geometry/0-end.data.v0;
-
 mv ./0-end.data $PERM/psdm/cxi/<experiment name>/calib/<detector type>/<detector name>/geometry/0-end.data.v1
 ```
 
@@ -151,11 +150,12 @@ Note that due to the presence of the previous `0-end.data` geometry calibration 
 
 ```bash
 mv $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v0;
-
 mv ./0-end.data $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v1
 ```
 
 
+---
+---
 
 Note:
   The CCN newsletter article mentions performing manual calibration using the LCLS tool `calibman`, which is installed as part of psana. Running the calibman command line interface requires having the MySQL package available for python. This is installed with conda as
