@@ -94,4 +94,4 @@ rsync -t psexport.slac.stanford.edu:/reg/g/psdm/data/ExpNameDb/experiment-db.dat
     source $PERM/cctbx.xfel/build/setpaths.csh #csh users
     ```
 
-With the above steps the psana-cctbx.xfel build should now be installed, with all accessible commands working.
+With the above steps the psana-cctbx.xfel build should now be installed, with all accessible commands working. A script for the above commands can be found [here](https://raw.githubusercontent.com/ExaFEL/exafel_project/master/bin/install.sh).
