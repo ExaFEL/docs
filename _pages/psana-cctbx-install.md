@@ -50,12 +50,13 @@ Firstly, we must ensure that the environment is correctly initialised to process
     ```
 
 
-8. Copy the experiment name database from SLAC to your local system. This step assumes the end-user has a SLAC account, and can access *psexport.slac.stanford.edu*:
+8. Copy the experiment name database from SLAC to your local system. This step assumes the end-user has a SLAC account, and can access *psexport.slac.stanford.edu*. A public facing database will be included with the psana conda installation at a later date.
 
     ```bash
-mkdir -p $PERM/psdm/data/ExpNameDb;
-rsync -t psexport.slac.stanford.edu:/reg/g/psdm/data/ExpNameDb/experiment-db.dat $PERM/psdm/data/ExpNameDb/
-```
+    mkdir -p $PERM/psdm/data/ExpNameDb;
+    rsync -t psexport.slac.stanford.edu:/reg/g/psdm/data/ExpNameDb/experiment-db.dat $PERM/psdm/data/ExpNameDb/
+    ```
+
 9. Export the following psana environment variables:
 
     ```bash
@@ -66,15 +67,17 @@ rsync -t psexport.slac.stanford.edu:/reg/g/psdm/data/ExpNameDb/experiment-db.dat
 10. Create a cctbx.xfel directory, and acquire the bootstrap program for building and installation (`--no-check-certificate` can often be required):
 
     ```bash
-    mkdir $PERM/cctbx.xfel; cd $PERM/cctbf.xfel
+    mkdir $PERM/cctbx.xfel; cd $PERM/cctbx.xfel
     wget https://raw.githubusercontent.com/cctbx/cctbx_project/master/libtbx/auto_build/bootstrap.py --no-check-certificate
     ```
 
-
-11. Download and build the cctbx.xfel packages using the conda environment activated python. This step assumes the end-user has access to the LBNL system **cci**. For the purpose of this guide we will currently focus only on LBNL developers.
+11. Download and build the cctbx.xfel packages using the conda environment activated python. This step assumes the end-user does not have access to the LBNL system **cci**, and so the user must also request access to the [phenix](http://phenix-online.org/) software packages (unzipped to any directory, henceforth called `$PHENIX_DIR` ).
 
     ```bash
-    python bootstrap.py hot update --builder=xfel --cciuser=<cciusername> --sfuser=<githubusername>
+    python bootstrap.py hot --builder=xfel --sfuser=<githubusername>
+    python bootstrap.py update --builder=dials --sfuser=mlxd
+    mkdir ./modules/cxi_xdr_xes
+    cp -r $PHENIX_DIR/modules/labelit ./modules
     ```
 
 12. Assuming C++ compilers exist on the path, the following step will build the XFEL version of cctbx; specify the number of available cores to enable parallel compilation:
