@@ -7,7 +7,7 @@ permalink: cspad-calib
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-With the toolchain [built, installed](psana-cctbx-install.html) and [verified to work](build-test)
+With the toolchain [built, installed](psana-cctbx-install.html) and [verified to work](build-test.html)
 the next step is to work through the processing pipeline using some real data.
 
 For the processing steps listed below, we will be making use of the guidelines given by this [CCN newsletter article](http://www.phenix-online.org/newsletter/CCN_2016_07.pdf#page=18). Additional information can be found on the [cctbx.xfel wiki](http://viper.lbl.gov/cctbx.xfel/index.php/Main_Page). As per the information in the newsletter article, the process of operating the cctbx.xfel pipeline involves three main stages:
