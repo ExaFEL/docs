@@ -3,9 +3,6 @@ layout: page
 title: Calibrating the CSPad detector with experimental data
 permalink: cspad-calib
 ---
-<script type="text/javascript" async
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
 
 With the toolchain [built, installed](psana-cctbx-install.html) and [verified to work](build-test.html)
 the next step is to work through the processing pipeline using some real data.
@@ -21,7 +18,7 @@ Further information on these stages is provided in the above resource locations.
 
 # Step 1. Calibration
 
-This step refers to the initialisation of the appropriate parameters for the detector used in the experiment. The alignment of the detector segments, determining which pixels are hot/cold (always bright, or always dark), calculating averages, and determining the detector gain are among the necessary steps successfully analysing the data.
+This step refers to the initialisation of the appropriate parameters for the detector used in the experiment. The alignment of the detector segments, determining which pixels are hot/cold (always bright, or always dark), calculating averages, and determining the detector gain are among the necessary steps for successfully analysing the data.
 
 Here, we have assumed the `$PERM` environment variable is still set from the installation process outlined in post (install_post). For the purpose of this work, we are using [XTC](https://confluence.slac.stanford.edu/display/PSDMInternal/Pds+Xtc) data as collected from the [CSPAD](http://slac.stanford.edu/pubs/slacpubs/15250/slac-pub-15284.pdf) detector at [LCLS](https://confluence.slac.stanford.edu/display/PSDM/CSPAD+Alignment) (that is, raw data from the LCLS detectors). To be found by psana-cctbx.xfel, this data must be maintained in a specific directory hierarchy. Assuming a dataset named `cxim1416`, the following layout must be adhered to:
 
