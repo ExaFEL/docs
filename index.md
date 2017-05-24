@@ -6,13 +6,12 @@
 #
 layout: default
 ---
-# Landing page
 
-## Getting start
+## Getting started
   - [Software installation](psana-cctbx-install): steps for performing the installation of the software pipeline.
-  - Build tests: In progress
+  - Software build tests: In progress
 
-## Data processing
-  - [Calibration](cspad_calib): the necessary steps to calibrate the detector prior to analysing data.
-  - [Discovery](disc-refine): using the initial calibration, spot finding and integration is performed to determine a crystal structure. Further refinement and calibration is performed here, until convergence has been reached.
-  - [Batch](batch): perform large scale parallel processing and refinement of the data using the optimised parameters from the previous stages.
+## Data processing steps
+  1. [Calibration](cspad_calib): the necessary steps to calibrate the detector prior to analysing data.
+  2. [Discovery](disc-refine): using the initial calibration, spot finding and integration is performed to determine a crystal structure. Further refinement and calibration is performed here, until convergence has been reached.
+  3. [Batch](batch): perform large scale parallel processing and refinement of the data using the optimised parameters from the previous stages.
