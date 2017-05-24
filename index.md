@@ -1,11 +1,7 @@
 ---
-#
-# You don't need to edit this file, it's empty on purpose.
-# Edit minima's home layout instead if you wanna make some changes
-# See: https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-#
 layout: default
 ---
+This landing page for the ExaFEL project will feature an updated list of the necessary steps to process data using the developed software pipeline, citing examples where applicable.
 
 ## Getting started
   - [Software installation](psana-cctbx-install): steps for performing the installation of the data analysis software pipeline.
