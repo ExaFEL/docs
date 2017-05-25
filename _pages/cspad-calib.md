@@ -150,9 +150,9 @@ mv $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.
 mv ./0-end.data $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v1
 ln -sf $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v1 $PERM/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data
 ```
-where the updated file was soft-linked to the `0-end.data` naming convention. This procedure is repeated for future refinements.
+where the updated file was soft-linked to the `0-end.data` naming convention. This procedure is repeated for future refinements. Next, we will focus on finding [Bragg peaks, indexing, and refinement](disc-refine.html).
 
----
+<!---
 ---
 
 Note:
@@ -162,3 +162,4 @@ Note:
 conda install mysql-python
   ```
   However, note that calibman requires a user to be within the LCLS psana environment, and currently does not work on external systems.
+  -->

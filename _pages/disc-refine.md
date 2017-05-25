@@ -18,19 +18,51 @@ For the purpose of determining the structure factors of the lattice, the followi
 
 However, in this guide, we aim to improve and refine the crystal model, as well as better determine the experimental parameters that affect diffraction intensities. Merging will be performed on a large scale once we have optimised the experimental model and parameters.
 
-## Bragg spot discovery and integration
+## Bragg spot discovery and indexing
 For this stage in the process, we must parameterise the spotfinding process to ensure it finds the best Bragg peaks to determine a crystal model for further refinement and analysis. For this we can use the <!---[DIALS](http://dials.lbl.gov/) spot-finding algorithm -->
-cctbx.xfel program `cctbx.xfel.xtc_process`, which will use the [DIALS](http://dials.lbl.gov/) back-end for performing spot-finding and integration. By providing appropriate parameters to `cctbx.xfel.xtc_process` we can optimally determine a crystal model.
+cctbx.xfel program `cctbx.xfel.xtc_process`, which will use the [DIALS](http://dials.lbl.gov/) back-end for performing spot-finding and integration. By providing appropriate parameters to `cctbx.xfel.xtc_process` we can discover a sufficient number of Bragg peaks to index and determine a model crystal structure.
 
-  ```Bash
-  sample code here; currently tied to LCLS
+  ```coffeescript
+  cctbx.xfel.xtc_process input.experiment=cxim1416 input.run_num=74 \
+   input.address=CxiDs1.0:Cspad.0 format.file_format=cbf \
+   format.cbf.detz_offset=585 \
+   input.xtc_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/xtc \
+   input.calib_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/calib
+  ```
+For the above command we have specified many of the same parameter values as used with `cxi.mpi_average` previously. This command will iterate through the data for the given run number, and determine the spot positions, proceed to determine which peaks can contribute to the model, and then proceed to index them to construct a crystal model. Sample output during the processing of data for the above parameters is:
+
+  ```txt
+    Accepted 2016-07-08T22:05Z24.133
+    Processing shot 20160708220524133
+    Setting spotfinder.filter.min_spot_size=6
+    Configuring spot finder from input parameters
+    ----------------------------------------------------------------------------
+    Finding strong spots in imageset 0
+    ----------------------------------------------------------------------------
+
+
+    Finding spots in image 1 to 1...
+    Setting chunksize=1
+    Extracting strong pixels from images
+     Using multiprocessing with 1 parallel job(s)
+
+    Found 393702 strong pixels on image 1
+
+    Extracted 217561 spots
+    Removed 210778 spots with size < 6 pixels
+    Removed 5 spots with size > 100 pixels
+    Calculated 6778 spot centroids
+    Calculated 6778 spot intensities
+    Filtered 6155 of 6778 spots by peak-centroid distance
+    Found 6155 bright spots
+    Found max_cell: 495.9 Angstrom
+    Setting d_min: 9.69
+    FFT gridding: (256,256,256)
+    Number of centroids used: 0
   ```
 
+Though not an exhaustive list of the parameterisation of `cctbx.xfel.xtc_process`, the full list of available optiomns to be given is determined by passing the option `-c`. The provided list will be given in [PHIL file format](http://cctbx.sourceforge.net/libtbx_phil.html). To modify these values treat them hierarchically, where parents are pass directly, followed by `.` to access children, where the above command shows examples of using this format.
 
 Following the output of the `cctbx.xfel.xtc_process` command above, a new geometric refinement of the detector positions for the CSPAD can be calculated using the command `cspad.cbf_metrology`.
 
-
-
-
-
-## Merging
+## Refinement of detector parameters
