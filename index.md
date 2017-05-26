@@ -9,6 +9,6 @@ This landing page for the ExaFEL project will feature an updated list of the nec
 
 ## Data processing steps
 The following steps must be undertaken to analyse crystallographic data sets using the ExaFEL software pipeline:
-  1. [Calibration](cspad-calib): the necessary steps to calibrate the detector prior to analysing data.
-  2. [Discovery](disc-refine): using the initial calibration, spot finding and integration is performed to determine a crystal structure. Further refinement and calibration is performed here, until convergence has been reached.
-  3. [Batch](batch): perform large scale parallel processing and refinement of the data using the optimised parameters from the previous stages.
+  1. [Initial calibration](cspad-calib): the necessary steps to perform initial calibration of the detector prior to analysing data.
+  2. [Discovery, refinement and integration](disc-refine): using the initial calibration, spot finding and detector refinement is performed to determine the crystal structure and better calculate the experimental parameters. Integration of the data is performed upon completion of the refinement.
+  3. [Data merging and scaling](merge-scale): perform merging of the processed data using the optimised parameters from the previous stages.

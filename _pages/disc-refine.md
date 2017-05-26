@@ -49,14 +49,15 @@ cctbx.xfel program `cctbx.xfel.xtc_process`, which will use the [DIALS](http://d
   ```coffeescript
   cctbx.xfel.xtc_process input.experiment=cxim1416 input.run_num=74 \
    input.address=CxiDs1.0:Cspad.0 format.file_format=cbf \
-   format.cbf.detz_offset=585 format.cbf.invalid_pixel_mask=mask.pickle\
+   format.cbf.detz_offset=585 format.cbf.invalid_pixel_mask=mask.pickle \
    input.xtc_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/xtc \
    input.calib_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/calib \
    spotfinder.filter.min_spot_size=2 spotfinder.threshold.xds.gain=7 \
-   spotfinder.threshold.xds.global_threshold=100 >> xtc_process.log
+   spotfinder.threshold.xds.global_threshold=100 dispatch.integrate=False \
+   output.dir="./" >> xtc_process.log &
   ```
 
-For the above command we have specified many of the same parameter values as used with `cxi.mpi_average` previously. We have also chosen to pass some modifications to the spotfinder  parameters; to examine peaks with a spot size of at least 2 (`spotfinder.filter.min_spot_size=2`), using an estimated gain of 7 (`spotfinder.threshold.xds.gain=7`, determined from the previous section), and a minimum count value of 100 for being considered a background value (`spotfinder.threshold.xds.global_threshold=100`). This command will iterate through the data for the given run number, and determine the spot positions, proceed to determine which peaks can contribute to the model, and then proceed to index them to construct a crystal model. Sample print output during the processing of data for the above parameters is:
+For the above command we have specified many of the same parameter values as used with `cxi.mpi_average` previously. We have also chosen to pass some modifications to the parameters; to examine peaks with a spot size of at least 2 (`spotfinder.filter.min_spot_size=2`), using an estimated gain of 7 (`spotfinder.threshold.xds.gain=7`, determined from the previous section),  a minimum count value of 100 for being considered a background value (`spotfinder.threshold.xds.global_threshold=100`), and using the pixel mask determined previously (`format.cbf.invalid_pixel_mask=mask.pickle`). This command will iterate through the data for the given run number, and determine the spot positions, proceed to determine which peaks can contribute to the model, and then proceed to index them to construct a crystal model. The integration step is skipped for the above command (`dispatch.integrate=False`) as we intend to discovery and index for the initial steps only, allowing the process to run much faster. Sample print output during the processing of data for the above parameters is:
 
   ```txt
     Accepted 2016-07-08T22:05Z24.133
@@ -87,13 +88,44 @@ For the above command we have specified many of the same parameter values as use
     FFT gridding: (256,256,256)
     Number of centroids used: 0
   ```
-The print-statement output of `cctbx.xfel.xtc_process` can be followed by running `tail -f xtc_process.log`. Though not an exhaustive list of the parameterisation of `cctbx.xfel.xtc_process`, the full list of available options is available by passing the option `-c`. The provided list will be displayed in [PHIL file format](http://cctbx.sourceforge.net/libtbx_phil.html). To modify these values treat them hierarchically, where parents are passed directly to the command, followed by `.` to access and set children. The previous command shows examples of using this format. One thing to note is that we have not parameterised any element of the indexing or refinement stages of the process. This can be performed by appending some additional options to the end of the `cctbx.xfel.xtc_process` command abiove, with names and uses determined from the full list of options.
+The print-statement output of `cctbx.xfel.xtc_process` can be followed by running `tail -f xtc_process.log`. Though not an exhaustive list of the parameterisation of `cctbx.xfel.xtc_process`, the full list of available options is available by passing the option `-c`. The provided list will be displayed in [PHIL file format](http://cctbx.sourceforge.net/libtbx_phil.html). To modify these values treat them hierarchically, where parents are passed directly to the command, followed by `.` to access and set children. The previous command shows examples of using this format. One thing to note is that we have not parameterised any element of the indexing or refinement stages of the process. This can be performed by appending some additional options to the end of the `cctbx.xfel.xtc_process` command above, with names and uses determined from the full list of options.
+
+Upon completion, the command will generate output files into the specified directory (currently `./`). CBF images will be created for all indexed files, as well as files containing the indexing data from the run (`refine_experiments.json` and `indexed.pickle`).
 
 ## Common Mode correction
 Where the gain was discussed to be constant across time for a given pixel, the common mode is a spatially invariant offset to a detector sensor for a given shot. To ensure use of the common mode corection algorithm the option `format.cbf.common_mode.algorithm=default` can be specified, or alternatively `custom` can be chosen. More details can be found in the CCN article. This section will be updated with changes to the models and with newer steps as they are determined. For the purposes of what is being discussed here, the `default` setting will be sufficient.
 
-Following the output of the `cctbx.xfel.xtc_process` command above, a new geometric refinement of the detector positions for the CSPAD can be calculated using the command `cspad.cbf_metrology`.
-
-
 
 ## Refinement of detector parameters
+Assuming the above command ran successfully, an initial set of indexed data should be available. This can then be used to better refine the tile positions on the CSPAD detector, and can be calculated using the command `cspad.cbf_metrology`. Firstly, we can concatenate the indexing results from several different images into a single dataset (`dials.combine_experiments`), and can be run as
+
+  ```bash
+  dials.combine_experiments reference_from_experiment.average_detector=True \
+   reference_from_experiment.average_hierarchy_level=0 \
+   output.experiments_filename=cspad_combined_experiments.json \
+   output.reflections_filename=cspad_combined_reflections.pickle \
+   cspad_combine.phil
+  ```
+
+For the refinement, it is necessary to generate a PHIL file, containing all the essential parameters. Assuming the combination dataset is `cspad_combined_experiments.json` and `cspad_combined_reflections.pickle` as output from above, the refinement command can be run as:
+
+  ```bash
+  export TAG=<some postfix string>
+  cspad.cbf_metrology tag=${TAG} ./ n_subset=2000 \
+    split_dataset=True cxim1416-refine.phil rmsd_filter.enable=False
+  ```
+
+where `cxim1416-refine.phil` is a PHIL file containing the parameters for refinement. The options can be examined by passing the `-c` option, or by referring to the CCN article for further information. The resulting output file will be `0-end.data.${TAG}_1`, and can then be used as the new version of the metrology file. To ensure the new file is a better fit for the experimental observations, the commands `cspad.detector_shifts` and `cspad.detector_statistics` can be run as:
+
+  ```bash
+  cspad.detector_shifts ${TAG}_1_filtered_experiments.json \
+   ${TAG}_1_filtered_reflections.pickle \
+   ${TAG}_1_filtered_experiments_level2.json \
+   ${TAG}_1_filtered_reflections_level2.pickle >> det_shift.log;
+  cspad.detector_statistics tag=${TAG} >> det_stat.log;
+  ```
+
+The output of these two commands will hold information on the quality of the refinement, and can be used to determine if further refinement steps are required.
+
+## Integration
+With the successful refinement of the detector metrology using the previous steps, the data can now be integrated effectively, by specifying `dispatch.integrate=True` for `cctbx.xfel.xtc_process`. Additional output files will now be generator in the form of `int-0-<timestamp>.pickle`, which are the input arguments for the data merging and scaling commands `cxi.merge` and `prime.postrefine.` We will discuss the use of these commands [here](merge-scale.html).
