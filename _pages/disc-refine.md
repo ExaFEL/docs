@@ -19,17 +19,17 @@ For the purpose of determining the structure factors of the lattice, the followi
 However, in this guide, we aim to improve and refine the crystal model, as well as better determine the experimental parameters that affect diffraction intensities. Merging will be performed on a large scale once we have optimised the experimental model and parameters.
 
 ## Gain estimation
-Prior to performing spotfinding, it is important to have an estimate of the detector gain. We can estimate this from a sample of the XTC data streams by first exporting a collection of image from the stream for examination. This is performed with the command `cctbx.xfel.xtc_dump`. An example paramterisation of the call for this command is as follows:
+Prior to performing spotfinding, it is important to have an estimate of the detector gain. The gain for pixel at position $$x,y$$ is given as $$\gamma_{x,y}$$, and is temporally invariant for the experiment. We can estimate this from a sample of the XTC data streams by first exporting a collection of images from the stream for examination. This is performed with the command `cctbx.xfel.xtc_dump`. An example parameterisation of the call for this command is as follows:
 
   ```coffeescript
   cctbx.xfel.xtc_dump input.experiment=cxim1416 input.run_num=74 \
-    input.address=input.address=CxiDs1.0:Cspad.0 format.file_format=cbf \
-    format.cbf.detz_offset=585 \
+    input.address=CxiDs1.0:Cspad.0 format.file_format=cbf \
+    format.cbf.detz_offset=585  \
     input.xtc_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/xtc \
     input.calib_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/calib \
     dispatch.max_events=100
   ```
-where we have used many of the same parameter values from the calibration steps examined previously. The `dispatch.max_events=100` line ensures that only 100 images are output. To estimate the gain from these images, the command `dials.estimate_gain` is used. Lookping over all possible CBF files is performed with:
+where we have used many of the same parameter values from the calibration steps examined previously. The `dispatch.max_events=100` line ensures that only 100 images are output. To estimate the gain from these images, the command `dials.estimate_gain` is used. Looping over all possible CBF files is performed with:
 
   ```bash
     for img in $(ls *.cbf); do
@@ -40,6 +40,8 @@ where we have used many of the same parameter values from the calibration steps 
   ```
 where the resulting output will be placed into `gain.txt`. Examining the output will allow for an estimated gain for the following section.
 
+
+
 ## Bragg spot discovery and indexing
 For this stage in the process, we must parameterise the spotfinding process to ensure it finds the best Bragg peaks to determine a crystal model for further refinement and analysis. For this we can use the <!---[DIALS](http://dials.lbl.gov/) spot-finding algorithm -->
 cctbx.xfel program `cctbx.xfel.xtc_process`, which will use the [DIALS](http://dials.lbl.gov/) back-end for performing spot-finding and integration. By providing appropriate parameters to `cctbx.xfel.xtc_process` we can discover a sufficient number of Bragg peaks to index and determine a model crystal structure. As for the gain estimation example above, a sample command for dataset `cxim1416` using run number 76 is:
@@ -47,13 +49,14 @@ cctbx.xfel program `cctbx.xfel.xtc_process`, which will use the [DIALS](http://d
   ```coffeescript
   cctbx.xfel.xtc_process input.experiment=cxim1416 input.run_num=74 \
    input.address=CxiDs1.0:Cspad.0 format.file_format=cbf \
-   format.cbf.detz_offset=585 \
+   format.cbf.detz_offset=585 format.cbf.invalid_pixel_mask=mask.pickle\
    input.xtc_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/xtc \
    input.calib_dir=/net/viper/raid1/mlxd_LM14/psdm/cxi/cxim1416/calib \
    spotfinder.filter.min_spot_size=2 spotfinder.threshold.xds.gain=7 \
-  spotfinder.threshold.xds.global_threshold=100
+   spotfinder.threshold.xds.global_threshold=100 >> xtc_process.log
   ```
-For the above command we have specified many of the same parameter values as used with `cxi.mpi_average` previously. We have also chosen to examine peaks with a spot isze of at least 2, using an estimated gain of 7 (determined from the previous section), and a minimum count value of 100 for being considered a backgroundf value. This command will iterate through the data for the given run number, and determine the spot positions, proceed to determine which peaks can contribute to the model, and then proceed to index them to construct a crystal model. Sample output during the processing of data for the above parameters is:
+
+For the above command we have specified many of the same parameter values as used with `cxi.mpi_average` previously. We have also chosen to pass some modifications to the spotfinder  parameters; to examine peaks with a spot size of at least 2 (`spotfinder.filter.min_spot_size=2`), using an estimated gain of 7 (`spotfinder.threshold.xds.gain=7`, determined from the previous section), and a minimum count value of 100 for being considered a background value (`spotfinder.threshold.xds.global_threshold=100`). This command will iterate through the data for the given run number, and determine the spot positions, proceed to determine which peaks can contribute to the model, and then proceed to index them to construct a crystal model. Sample print output during the processing of data for the above parameters is:
 
   ```txt
     Accepted 2016-07-08T22:05Z24.133
@@ -84,9 +87,13 @@ For the above command we have specified many of the same parameter values as use
     FFT gridding: (256,256,256)
     Number of centroids used: 0
   ```
+The print-statement output of `cctbx.xfel.xtc_process` can be followed by running `tail -f xtc_process.log`. Though not an exhaustive list of the parameterisation of `cctbx.xfel.xtc_process`, the full list of available options is available by passing the option `-c`. The provided list will be displayed in [PHIL file format](http://cctbx.sourceforge.net/libtbx_phil.html). To modify these values treat them hierarchically, where parents are passed directly to the command, followed by `.` to access and set children. The previous command shows examples of using this format. One thing to note is that we have not parameterised any element of the indexing or refinement stages of the process. This can be performed by appending some additional options to the end of the `cctbx.xfel.xtc_process` command abiove, with names and uses determined from the full list of options.
 
-Though not an exhaustive list of the parameterisation of `cctbx.xfel.xtc_process`, the full list of available options is available by passing the option `-c`. The provided list will be given in [PHIL file format](http://cctbx.sourceforge.net/libtbx_phil.html). To modify these values treat them hierarchically, where parents are passed directly to the command, followed by `.` to access and set children, where the above command shows examples of using this format. One thing to note is that we have not parameterised any element of the indexing or refinement stages of the process. This can be performed by appending some additional options to the end of the `cctbx.xfel.xtc_process` command abiove,  with names and uses determined from the full list of options.
+## Common Mode correction
+Where the gain was discussed to be constant across time for a given pixel, the common mode is a spatially invariant offset to a detector sensor for a given shot. To ensure use of the common mode corection algorithm the option `format.cbf.common_mode.algorithm=default` can be specified, or alternatively `custom` can be chosen. More details can be found in the CCN article. This section will be updated with changes to the models and with newer steps as they are determined. For the purposes of what is being discussed here, the `default` setting will be sufficient.
 
 Following the output of the `cctbx.xfel.xtc_process` command above, a new geometric refinement of the detector positions for the CSPAD can be calculated using the command `cspad.cbf_metrology`.
+
+
 
 ## Refinement of detector parameters

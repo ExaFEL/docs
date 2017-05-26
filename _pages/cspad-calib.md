@@ -51,33 +51,33 @@ The above command generates average (`cxim1416_avg-r0054.cbf`), standard deviati
 The XTC file naming scheme is composed of a numerical identifier (`eXYZ-`), with mapping to name determined from `$PERM/psdm/data/ExpNameDb/experiment-db.dat`, followed by the run number (`rXYZW-`) indicating a specific instance of data collection. Given the throughput of data, there are multiple data acquisition (DAQ) systems working simulataneously on the detector, and each output their own data stream (`sXY-`). The recombination of this data is performed by psana, and abstracted away from cctbx.xfel users. Next, the chunk number is given, wherein the data is broken up into chunks of a given size. As the data is streamed from the detector, when a certain threshold is reached, the data can be broken into a new chunk (`cXY`). For the above command, the processing would be performed on the streams matching `e780-r0054-s[0-9][0-9]-c[0-9][0-9].xtc`.
 
 ## Pixel mask
-From the previous step, we have created three images which can be used to determine which pixels can be trusted for the experimental data. These are based on the detected pixel intensities, measured in analogue-to-digital units (ADU), $$I_{jk}^{\xi}$$, where $$j,k$$ are pixel indices along the XY plane, and $$\xi \in \{\textrm{avg,std,max} \}$$ denotes the average, standard deviation, and maximum images respectively. For the average image data:
+From the previous step, we have created three images which can be used to determine which pixels can be trusted for the experimental data. These are based on the detected pixel intensities, measured in analogue-to-digital units (ADU), $$I_{xy}^{\xi}$$, where $$x,y$$ are pixel indices along the XY plane, and $$\xi \in \{\textrm{avg,std,max} \}$$ denotes the average, standard deviation, and maximum images respectively. For the average image data:
 
 $$ \begin{align}
-I_{jk}^{\textrm{avg}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
-I_{jk}^{\textrm{avg}} &\gt 2\times10^3 &&\rightarrow \textrm{hypersensitive pixel.}
+I_{xy}^{\textrm{avg}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
+I_{xy}^{\textrm{avg}} &\gt 2\times10^3 &&\rightarrow \textrm{hypersensitive pixel.}
     \end{align}
 $$
 
 Similarly for the standard deviation image,
 
 $$ \begin{align}
-I_{jk}^{\textrm{std}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
-I_{jk}^{\textrm{std}} &\gt 10 &&\rightarrow \textrm{hypersensitive pixel,}
+I_{xy}^{\textrm{std}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
+I_{xy}^{\textrm{std}} &\gt 10 &&\rightarrow \textrm{hypersensitive pixel,}
     \end{align}
 $$
 
 and for the composite maximum,
 
 $$ \begin{align}
-I_{jk}^{\textrm{max}} &\lesssim 300 &&\rightarrow \textrm{dead pixel,}  \\
+I_{xy}^{\textrm{max}} &\lesssim 300 &&\rightarrow \textrm{dead pixel,}  \\
     \end{align}
 $$
 
 where the composite maximum has only a lower bounded value. Assuming a 1/0 Boolean flag for every pixel, and the above intensity ranges, we can define a mask for trusted and untrusted pixels, $$F_{jk}$$, as
 
-$$ F_{jk} = \begin{cases}
-1, & \textrm{if } (0 \leq I_{jk}^{\textrm{avg}} \leq 2\times10^3) \wedge (0 \leq I_{jk}^{\textrm{std}} \leq 10) \wedge (300 \leq I_{jk}^{\textrm{max}}) \\
+$$ F_{xy} = \begin{cases}
+1, & \textrm{if } (0 \leq I_{xy}^{\textrm{avg}} \leq 2\times10^3) \wedge (0 \leq I_{xy}^{\textrm{std}} \leq 10) \wedge (300 \leq I_{xy}^{\textrm{max}}) \\
 0, & \textrm{otherwise}
 \end{cases}.
 $$
