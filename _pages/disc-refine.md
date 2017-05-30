@@ -6,7 +6,7 @@ permalink: disc-refine
 
 Continuing with the processing steps discussed in the [detector calibration steps](cspad-calib), we now examine indexing and spot discovery. These steps are once again summarised from the [CCN article](http://www.phenix-online.org/newsletter/CCN_2016_07.pdf#page=18), [cctbx.xfel wiki](http://viper.lbl.gov/cctbx.xfel/index.php), with citations given for other locations where necessary. At this stage in the processing pipe-line our goal is to find Bragg peaks, index them, refine them and perform integration over the data (if necessary).
 
-Ideally, we aim to predict the Miller indices $$h,k,l$$ of the crystal lattice unit cell, and hence use this model to better determine the structure of the overall data. This is challenging, as the data is collected in single shots at undetermined crystal orientations, and only partially samples the overall structure factor. By examing the data to within regions masked by the crystal model allows for a lowering of overall noise in the collected data. As a result Bragg spots that would otherwise be difficult to observe can contribute to the collection and analysis, allowing a better calculation of the structure factor. [[1](doi:10.1038/nmeth.2887),[2](doi:10.7554/eLife.05421)]
+Ideally, we aim to predict the Miller indices $$h,k,l$$ of the crystal lattice unit cell, and hence use this model to better determine the structure of the overall data. This is challenging, as the data is collected in single shots at undetermined crystal orientations, and only partially samples the overall structure factor. By examing the data to within regions masked by the crystal model allows for a lowering of overall noise in the collected data. As a result Bragg spots that would otherwise be difficult to observe can contribute to the collection and analysis, allowing a better calculation of the structure factor. [[1](doi.org/10.1038/nmeth.2887),[2](doi.org/10.7554/eLife.05421)]
 
 
 For the purpose of determining the structure factors of the lattice, the following steps should be performed:
@@ -97,7 +97,7 @@ Where the gain was discussed to be constant across time for a given pixel, the c
 
 
 ## Refinement of detector parameters
-Assuming the above command ran successfully, an initial set of indexed data should be available. This can then be used to better refine the tile positions on the CSPAD detector, and can be calculated using the command `cspad.cbf_metrology`. Firstly, we can concatenate the indexing results from several different images into a single dataset (`dials.combine_experiments`), and can be run as
+Assuming the above command ran successfully, an initial set of indexed data should be available. This can then be used to better refine the tile positions on the CSPAD detector, and can be calculated using the command `cspad.cbf_metrology`. Firstly, we can concatenate the indexing results from several different images into a single dataset (`dials.combine_experiments`), which is performed with:
 
   ```bash
   dials.combine_experiments reference_from_experiment.average_detector=True \
@@ -128,4 +128,4 @@ where `cxim1416-refine.phil` is a PHIL file containing the parameters for refine
 The output of these two commands will hold information on the quality of the refinement, and can be used to determine if further refinement steps are required.
 
 ## Integration
-With the successful refinement of the detector metrology using the previous steps, the data can now be integrated effectively, by specifying `dispatch.integrate=True` for `cctbx.xfel.xtc_process`. Additional output files will now be generator in the form of `int-0-<timestamp>.pickle`, which are the input arguments for the data merging and scaling commands `cxi.merge` and `prime.postrefine.` We will discuss the use of these commands [here](merge-scale.html).
+With the successful refinement of the detector metrology using the previous steps, the data can now be integrated effectively, by specifying `dispatch.integrate=True` for `cctbx.xfel.xtc_process`. Additional output files will now be generated in the form of `int-0-<timestamp>.pickle`, which are the input arguments for the data merging and scaling command `cxi.merge`, and the post-refinement command `prime.postrefine.` We will discuss the use of these commands [here](merge-scale.html).

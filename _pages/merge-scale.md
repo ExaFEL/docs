@@ -19,6 +19,6 @@ The `model` option provides a [PDB](http://www.rcsb.org/pdb/home/home.do) model 
 
 ## Post-refinement with **prime**
 
-The program `prime` [1](http://dx.doi.org/10.7554/eLife.05421) is used on the resulting merged data to further refine the model and parameters.
+The program `prime` [][1](http://dx.doi.org/10.7554/eLife.05421)] is used on the resulting merged data to further refine the model and parameters.
 
 [tutorial here](http://viper.lbl.gov/cctbx.xfel/index.php/2017_prime_tutorial)
