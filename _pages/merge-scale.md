@@ -19,7 +19,7 @@ The `model` option provides a [PDB](http://www.rcsb.org/pdb/home/home.do) model 
 
 ## Post-refinement with **prime.postrefine**
 
-The program `prime` [[1](http://dx.doi.org/10.7554/eLife.05421)] is used to perform post-refinement on the resulting data following the integration steps, as well as the subsequent merging. As such, `prime.postrefine` can be seen as an alternative approach to using `cxi.merge`, where the authors suggest it can improve results using lower numbers of crystal images. As before, the full list of available arguments can be viewed by running `prime.postrefine -h`. For more extensive coverage on the use of `prime` please see the [tutorial](http://viper.lbl.gov/cctbx.xfel/index.php/2017_prime_tutorial).
+The program `prime` [[2](http://dx.doi.org/10.7554/eLife.05421)] is used to perform post-refinement on the resulting data following the integration steps, as well as the subsequent merging. As such, `prime.postrefine` can be seen as an alternative approach to using `cxi.merge`, where the authors suggest it can improve results using lower numbers of crystal images. As before, the full list of available arguments can be viewed by running `prime.postrefine -h`. For more extensive coverage on the use of `prime` please see the [tutorial](http://viper.lbl.gov/cctbx.xfel/index.php/2017_prime_tutorial).
 
 For the purpose of these steps, we will show example commands to post-refine and merge the data from the integration stages. This step will potentially be the final in our data analysis pipeline, though convergence may require several iterations. For a generic PHIL file, the command `prime.run > params.phil` without any arguments generates the required file format for later editing.
 
