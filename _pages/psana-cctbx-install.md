@@ -75,7 +75,7 @@ Firstly, we must ensure that the environment is correctly initialised to process
 
     ```bash
     python bootstrap.py hot --builder=xfel --sfuser=<githubusername>
-    python bootstrap.py update --builder=dials --sfuser=mlxd
+    python bootstrap.py update --builder=dials --sfuser=<githubusername>
     mkdir ./modules/cxi_xdr_xes
     cp -r $PHENIX_DIR/modules/labelit ./modules
     ```
