@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Analysing the LD91 data using Cori</title>
+  <meta name="description" content="ExaFEL Research Project, 2017">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:4000/ld91-knl">
+  <link rel="alternate" type="application/rss+xml" title="ExaFEL Project" href="/feed.xml">
+
+  
+</head>
+
+  <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+   <link rel="stylesheet" href="w3.css"> 
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">ExaFEL Project</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <!--div class="trigger">
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+            <a class="page-link" href="/batch">Batch processing of data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/build-test">Testing the software pipeline</a>
+            
+          
+            
+            
+            <a class="page-link" href="/cspad-calib">Calibrating the CSPad detector with experimental data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/data-paths">Data paths</a>
+            
+          
+            
+            
+            <a class="page-link" href="/disc-refine">Spot discovery and refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/docker">Building and using Docker images with Shifter</a>
+            
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/merge-scale">Merging, scaling and post-refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/psana-cctbx-install">Installing the psana-cctbx toolchain</a>
+            
+          
+            
+            
+            <a class="page-link" href="/ld91-knl">Analysing the LD91 data using Cori</a>
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+      </div-->
+      </nav>
+    
+  </div>
+</header>
+
+    <style type="text/css">
+.mlxd-sidebar{height:100%;width:160px;background-color:#fdfdfd;position:absolute!important;z-index:1;overflow:auto}
+
+
+
+a:link {
+    color:darkslateblue;
+    font-weight:bold;
+}
+
+
+/* visited link */
+a:visited {
+    color: darkslategrey;
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+}
+
+/* selected link */
+a:active {
+    color: darkgreen;
+}
+
+</style>
+
+<div class="mlxd-sidebar w3-bar-block" style="width:15%">
+  <a href="/docs" class="w3-bar-item w3-button">ExaFEL main page</a>
+  <a href="/docs/about" class="w3-bar-item w3-button">About</a>
+  <a href="#" class="w3-bar-item w3-button">Project info</a>
+  <!--a href="#" class="w3-bar-item w3-button">Page list</a-->
+</div>
+
+
+
+
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Analysing the LD91 data using Cori</h1>
+  </header>
+
+
+  <div class="post-content">
+    <p>Using the Shifter (Docker) container created <a href="docker">previously</a></p>
+
+<h2 id="data-processing-on-cori">Data processing on Cori</h2>
+<p>For the purposes of an example, we will load the Shifter container onto a KNL load, set the required paths and process some images from averaging, spotfinding, indexing, and finally metrology. We will outline all the necessary commands and steps, and include batch job submission where necessary.</p>
+
+<ol>
+  <li>
+    <p>Acquire a Cori KNL node, and load the respective Docker container to be accessible on the node</p>
+
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> salloc -N 1 -p debug --image<span class="o">=</span>docker:mlxd/xfel:latest -t 00:30:00 -C knl -A &lt;repo name&gt; <span class="se">\</span>
+ --volume<span class="o">=</span><span class="s2">"&lt;path to data&gt;/cxi:/reg/d/psdm/CXI; </span><span class="se">\</span><span class="s2">
+ &lt;path to data&gt;/cxi:/reg/d/psdm/cxi; </span><span class="se">\</span><span class="s2">
+ &lt;path to experiment name database&gt;/psdm/:/reg/g;"</span> 
+</code></pre>
+    </div>
+    <p>Alternatively, to load a container with a dynamically mountable <strong>modules</strong> directory, use</p>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> salloc -N 1 -p debug --image<span class="o">=</span>docker:mlxd/xfel:latest_modules -t 00:30:00 -C knl -A lcls <span class="se">\</span>
+ --volume<span class="o">=</span><span class="s2">"&lt;path to data&gt;/cxi:/reg/d/psdm/CXI; </span><span class="se">\</span><span class="s2">
+ &lt;path to data&gt;/cxi:/reg/d/psdm/cxi; </span><span class="se">\</span><span class="s2">
+ &lt;path to experiment name database&gt;/psdm/:/reg/g; </span><span class="se">\</span><span class="s2">
+ &lt;path to modules&gt;/modules:/modules"</span>
+</code></pre>
+    </div>
+  </li>
+  <li>Load the Shifter container and run a terminal, setting the required paths for cctbx.xfel
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> shifter /bin/bash
+ <span class="nb">source</span> /build/setpaths.sh
+</code></pre>
+    </div>
+  </li>
+  <li>Perform averaging of the data using bright and dark runs (dark=run89 for LD91)
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> cxi.mpi_average -x cxid9114 -r 89 -a CxiDs2.0:Cspad.0 -d 572 -v -g 6.85 -R <span class="c"># Dark</span>
+ cxi.mpi_average -x cxid9114 -r 96 -a CxiDs2.0:Cspad.0 -d 572 -v -g 6.85 <span class="c"># Bright</span>
+</code></pre>
+    </div>
+    <p>The above commands will however only run on a single core. This is because we have not yet parameterised the MPI environment for Shifter. To do this, we can create an <strong>avg.sh</strong> file which contains all our necessary commands and use all available KNL cores using <code class="highlighter-rouge">srun -n 68</code>. The file <strong>avg.sh</strong> will be defined as:</p>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="c">#!/bin/bash</span>
+ <span class="c">### avg.sh ###</span>
+ <span class="nb">export </span><span class="nv">SIT_DATA</span><span class="o">=</span>/reg/g/psdm/data;
+ <span class="nb">export </span><span class="nv">SIT_PSDM_DATA</span><span class="o">=</span>/reg/d/psdm;
+ <span class="nb">export </span><span class="nv">SIT_ROOT</span><span class="o">=</span>/reg/g/psdm/data;
+ <span class="nb">source</span> /build/setpaths.sh
+ cxi.mpi_average -x cxid9114 -r <span class="k">${</span><span class="nv">1</span><span class="k">}</span> -a CxiDs2.0:Cspad.0 -d 572 -v -g 6.85
+</code></pre>
+    </div>
+    <p>which will be called using <code class="highlighter-rouge">srun</code> as</p>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> srun -n 68 -c 1 --cpu_bind<span class="o">=</span>cores shifter ./avg.sh &lt;run_number&gt;
+</code></pre>
+    </div>
+    <p>Here we can parameterise which run number to process.</p>
+  </li>
+  <li>Make a mask using the averaged data
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="c">#!/bin/bash </span>
+ <span class="c">### make_mask.sh ###</span>
+ <span class="nb">export </span><span class="nv">SIT_DATA</span><span class="o">=</span>/reg/g/psdm/data;
+ <span class="nb">export </span><span class="nv">SIT_PSDM_DATA</span><span class="o">=</span>/reg/d/psdm;
+ <span class="nb">export </span><span class="nv">SIT_ROOT</span><span class="o">=</span>/reg/g/psdm/data;
+ <span class="nb">source</span> /build/setpaths.sh
+ cxi.make_dials_mask --maxproj-min<span class="o">=</span>50 -o mask.pickle ../cxid9114_avg-r0089.cbf ../cxid9114_stddev-r0089.cbf ../cxid9114_max-r0096.cbf
+</code></pre>
+    </div>
+    <p>which again can be called using <code class="highlighter-rouge">srun</code> as</p>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> srun -n 68 -c 1 --cpu_bind<span class="o">=</span>cores shifter ./avg.sh &lt;run_number&gt;
+</code></pre>
+    </div>
+  </li>
+  <li>With the detector masks created we can now perform spotfinding and indexing on the data. For this we must define a PHIL file format to parameterise the spotfinding and indexing steps. To perform these steps for an initial spotfinding and indexing run of LD91 we used the PHIL file <strong>process.phil</strong> given by:
+    <div class="language-xml highlighter-rouge"><pre class="highlight"><code> mp{ #Parameterise the multiprocessing method to use MPI and a client-server submission model
+     method=mpi
+     mpi{
+         method=client_server
+     }
+ }
+ dispatch{ #Turn off the integration steps and CBF output in initial indexing for metrology
+     integrate=False
+     dump_indexed=False
+ }
+ input{ #Experiment details
+     address=CxiDs2.0:Cspad.0
+     experiment=cxid9114
+     run_num=113
+ }
+ format { #Output format details and specifics for LD91
+     file_format=cbf
+     cbf{
+         detz_offset=572.3938
+         invalid_pixel_mask=mask.pickle
+         override_energy=8950
+         cspad{
+             gain_mask_value=6.85
+             common_mode.algorithm=custom
+             common_mode.custom_parameterization=5,50
+         }
+     }
+ }
+ border_mask {
+     border=1
+ }
+ spotfinder { #Sptofinding parameters
+     filter.min_spot_size=2
+     threshold.xds.gain=25
+     threshold.xds.global_threshold=100
+ }
+ indexing{ #Indexing parameters
+     known_symmetry {
+             space_group = P43212
+             unit_cell = 78.9 78.9 38.1 90 90 90
+     }
+     method=real_space_grid_search
+     refinement_protocol.d_min_start=1.7
+ }
+ refinement { #Refinement parameters; currently disabled
+     parameterisation{
+             beam.fix=all
+         detector.fix_list=Dist,Tau1
+         auto_reduction{
+             action=fix
+             min_nref_per_parameter=1
+         }
+         crystal {
+                 unit_cell {
+                     restraints {
+                         tie_to_target{
+                             values=78.9,78.9,38.1,90,90,90
+                         sigmas=1,1,1,0,0,0
+                     }
+                 }
+             }
+         }
+     }
+ }
+ integration{ #Integration parameters; currently disabled
+     integrator=stills
+     profile.fitting=False
+     background {
+         algorithm=simple
+         simple {
+             model.algorithm = linear2d
+             outlier.algorithm = plane
+         }
+     }
+ }
+ profile {
+     gaussian_rs {
+         min_spots.overall = 0
+     }
+ }
+</code></pre>
+    </div>
+    <p>This can be submitted to <code class="highlighter-rouge">cctbx.xfel.xtc_process</code> in the format</p>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> srun -n 68 -c 1 --cpu_bind<span class="o">=</span>cores shifter ./process.sh <span class="nv">$PWD</span> <span class="nv">$PWD</span>/process.phil
+</code></pre>
+    </div>
+    <p>where <strong>process.sh</strong> is defined as</p>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="c">#!/bin/bash</span>
+ <span class="nb">export </span><span class="nv">SIT_DATA</span><span class="o">=</span>/reg/g/psdm/data;
+ <span class="nb">export </span><span class="nv">SIT_PSDM_DATA</span><span class="o">=</span>/reg/d/psdm;
+ <span class="nb">export </span><span class="nv">SIT_ROOT</span><span class="o">=</span>/reg/g/psdm/data;
+ <span class="nb">source</span> /build/setpaths.sh
+
+ <span class="nb">cd</span> <span class="nv">$1</span>
+ cctbx.xfel.xtc_process <span class="nv">$2</span>
+</code></pre>
+    </div>
+    <p>The script will change into the current working directory, run the shifter shifter container with <strong>process.sh</strong> which takes <strong>process.phil</strong> as an argument.</p>
+  </li>
+</ol>
+
+<hr />
+<p>To check the performance of the code run the <code class="highlighter-rouge">grep start *.txt | wc -l</code> in the <code class="highlighter-rouge">rXYZ/&lt;tag&gt;/out/debug</code> directory. This will list the number of files processed at any instance of time. If the total number of events are known, an estimate of the overall time required can be estimated by taking the change in event-number of time.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <!--h2 class="footer-heading">ExaFEL Project</h2-->
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              ExaFEL Project
+            
+            </li>
+            
+            <li><a href="mailto:loriordan@lbl.gov">loriordan@lbl.gov</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>ExaFEL Research Project, 2017</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

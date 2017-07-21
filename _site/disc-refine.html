@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Spot discovery and refinement</title>
+  <meta name="description" content="ExaFEL Research Project, 2017">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:4000/disc-refine">
+  <link rel="alternate" type="application/rss+xml" title="ExaFEL Project" href="/feed.xml">
+
+  
+</head>
+
+  <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+   <link rel="stylesheet" href="w3.css"> 
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">ExaFEL Project</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <!--div class="trigger">
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+            <a class="page-link" href="/batch">Batch processing of data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/build-test">Testing the software pipeline</a>
+            
+          
+            
+            
+            <a class="page-link" href="/cspad-calib">Calibrating the CSPad detector with experimental data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/data-paths">Data paths</a>
+            
+          
+            
+            
+            <a class="page-link" href="/disc-refine">Spot discovery and refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/docker">Building and using Docker images with Shifter</a>
+            
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/merge-scale">Merging, scaling and post-refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/psana-cctbx-install">Installing the psana-cctbx toolchain</a>
+            
+          
+            
+            
+            <a class="page-link" href="/ld91-knl">Analysing the LD91 data using Cori</a>
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+      </div-->
+      </nav>
+    
+  </div>
+</header>
+
+    <style type="text/css">
+.mlxd-sidebar{height:100%;width:160px;background-color:#fdfdfd;position:absolute!important;z-index:1;overflow:auto}
+
+
+
+a:link {
+    color:darkslateblue;
+    font-weight:bold;
+}
+
+
+/* visited link */
+a:visited {
+    color: darkslategrey;
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+}
+
+/* selected link */
+a:active {
+    color: darkgreen;
+}
+
+</style>
+
+<div class="mlxd-sidebar w3-bar-block" style="width:15%">
+  <a href="/docs" class="w3-bar-item w3-button">ExaFEL main page</a>
+  <a href="/docs/about" class="w3-bar-item w3-button">About</a>
+  <a href="#" class="w3-bar-item w3-button">Project info</a>
+  <!--a href="#" class="w3-bar-item w3-button">Page list</a-->
+</div>
+
+
+
+
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Spot discovery and refinement</h1>
+  </header>
+
+
+  <div class="post-content">
+    <p>Continuing with the processing steps discussed in the <a href="cspad-calib">detector calibration steps</a>, we now examine indexing and spot discovery. These steps are once again summarised from the <a href="http://www.phenix-online.org/newsletter/CCN_2016_07.pdf#page=18">CCN article</a>, <a href="http://viper.lbl.gov/cctbx.xfel/index.php">cctbx.xfel wiki</a>, with citations given for other locations where necessary. At this stage in the processing pipe-line our goal is to find Bragg peaks, index them, refine them and perform integration over the data (if necessary).</p>
+
+<p>Ideally, we aim to predict the Miller indices <script type="math/tex">h,k,l</script> of the crystal lattice unit cell, and hence use this model to better determine the structure of the overall data. This is challenging, as the data is collected in single shots at undetermined crystal orientations, and only partially samples the overall structure factor. By examing the data to within regions masked by the crystal model allows for a lowering of overall noise in the collected data. As a result Bragg spots that would otherwise be difficult to observe can contribute to the collection and analysis, allowing a better calculation of the structure factor. [<a href="doi.org/10.1038/nmeth.2887">1</a>,<a href="doi.org/10.7554/eLife.05421">2</a>]</p>
+
+<p>For the purpose of determining the structure factors of the lattice, the following steps should be performed:</p>
+
+<ul>
+  <li>Identify Bragg peaks and construct a crystal lattice model.</li>
+  <li>Use that model to mask data sites and integrate over these Bragg sites.</li>
+  <li>Iteratively refine the model using the newly analysed data until sufficiently converged.</li>
+  <li>Merge the data to determine the structure factors.</li>
+</ul>
+
+<p>However, in this guide, we aim to improve and refine the crystal model, as well as better determine the experimental parameters that affect diffraction intensities. Merging will be performed on a large scale once we have optimised the experimental model and parameters.</p>
+
+<h2 id="gain-estimation">Gain estimation</h2>
+<p>Prior to performing spotfinding, it is important to have an estimate of the detector gain. The gain for pixel at position <script type="math/tex">x,y</script> is given as <script type="math/tex">\gamma_{x,y}</script>, and is temporally invariant for the experiment. We can estimate this from a sample of the XTC data streams by first exporting a collection of images from the stream for examination. This is performed with the command <code class="highlighter-rouge">cctbx.xfel.xtc_dump</code>. An example parameterisation of the call for this command is as follows:</p>
+
+<div class="language-coffeescript highlighter-rouge"><pre class="highlight"><code>  <span class="nx">cctbx</span><span class="p">.</span><span class="na">xfel</span><span class="p">.</span><span class="na">xtc_dump</span> <span class="nx">input</span><span class="p">.</span><span class="na">experiment</span><span class="o">=</span><span class="nx">cxim1416</span> <span class="nx">input</span><span class="p">.</span><span class="na">run_num</span><span class="o">=</span><span class="mi">74</span> <span class="o">\</span>
+    <span class="nx">input</span><span class="p">.</span><span class="na">address</span><span class="o">=</span><span class="nx">CxiDs1</span><span class="p">.</span><span class="mi">0</span><span class="o">:</span><span class="nx">Cspad</span><span class="p">.</span><span class="mi">0</span> <span class="nx">format</span><span class="p">.</span><span class="na">file_format</span><span class="o">=</span><span class="nx">cbf</span> <span class="o">\</span>
+    <span class="nx">format</span><span class="p">.</span><span class="na">cbf</span><span class="p">.</span><span class="na">detz_offset</span><span class="o">=</span><span class="mi">585</span>  <span class="o">\</span>
+    <span class="nx">input</span><span class="p">.</span><span class="na">xtc_dir</span><span class="o">=/</span><span class="nx">net</span><span class="o">/</span><span class="nx">viper</span><span class="o">/</span><span class="nx">raid1</span><span class="o">/</span><span class="nx">mlxd_LM14</span><span class="o">/</span><span class="nx">psdm</span><span class="o">/</span><span class="nx">cxi</span><span class="o">/</span><span class="nx">cxim1416</span><span class="o">/</span><span class="nx">xtc</span> <span class="o">\</span>
+    <span class="nx">input</span><span class="p">.</span><span class="na">calib_dir</span><span class="o">=/</span><span class="nx">net</span><span class="o">/</span><span class="nx">viper</span><span class="o">/</span><span class="nx">raid1</span><span class="o">/</span><span class="nx">mlxd_LM14</span><span class="o">/</span><span class="nx">psdm</span><span class="o">/</span><span class="nx">cxi</span><span class="o">/</span><span class="nx">cxim1416</span><span class="o">/</span><span class="nx">calib</span> <span class="o">\</span>
+    <span class="nx">dispatch</span><span class="p">.</span><span class="na">max_events</span><span class="o">=</span><span class="mi">100</span>
+</code></pre>
+</div>
+<p>where we have used many of the same parameter values from the calibration steps examined previously. The <code class="highlighter-rouge">dispatch.max_events=100</code> line ensures that only 100 images are output. To estimate the gain from these images, the command <code class="highlighter-rouge">dials.estimate_gain</code> is used. Looping over all possible CBF files is performed with:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>    <span class="k">for </span>img <span class="k">in</span> <span class="k">$(</span>ls <span class="k">*</span>.cbf<span class="k">)</span>; <span class="k">do
+      </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">img</span><span class="k">}</span> &gt;&gt; gain.text
+      dials.estimate_gain img &gt;&gt; gain.txt
+      <span class="nb">echo</span> <span class="s2">""</span> &gt;&gt; gain.txt
+    <span class="k">done</span>
+</code></pre>
+</div>
+<p>where the resulting output will be placed into <code class="highlighter-rouge">gain.txt</code>. Examining the output will allow for an estimated gain for the following section.</p>
+
+<h2 id="bragg-spot-discovery-and-indexing">Bragg spot discovery and indexing</h2>
+<p>For this stage in the process, we must parameterise the spotfinding process to ensure it finds the best Bragg peaks to determine a crystal model for further refinement and analysis. For this we can use the <!---[DIALS](http://dials.lbl.gov/) spot-finding algorithm -->
+cctbx.xfel program <code class="highlighter-rouge">cctbx.xfel.xtc_process</code>, which will use the <a href="http://dials.lbl.gov/">DIALS</a> back-end for performing spot-finding and integration. By providing appropriate parameters to <code class="highlighter-rouge">cctbx.xfel.xtc_process</code> we can discover a sufficient number of Bragg peaks to index and determine a model crystal structure. As for the gain estimation example above, a sample command for dataset <code class="highlighter-rouge">cxim1416</code> using run number 76 is:</p>
+
+<div class="language-coffeescript highlighter-rouge"><pre class="highlight"><code>  <span class="nx">cctbx</span><span class="p">.</span><span class="na">xfel</span><span class="p">.</span><span class="na">xtc_process</span> <span class="nx">input</span><span class="p">.</span><span class="na">experiment</span><span class="o">=</span><span class="nx">cxim1416</span> <span class="nx">input</span><span class="p">.</span><span class="na">run_num</span><span class="o">=</span><span class="mi">74</span> <span class="o">\</span>
+   <span class="nx">input</span><span class="p">.</span><span class="na">address</span><span class="o">=</span><span class="nx">CxiDs1</span><span class="p">.</span><span class="mi">0</span><span class="o">:</span><span class="nx">Cspad</span><span class="p">.</span><span class="mi">0</span> <span class="nx">format</span><span class="p">.</span><span class="na">file_format</span><span class="o">=</span><span class="nx">cbf</span> <span class="o">\</span>
+   <span class="nx">format</span><span class="p">.</span><span class="na">cbf</span><span class="p">.</span><span class="na">detz_offset</span><span class="o">=</span><span class="mi">585</span> <span class="nx">format</span><span class="p">.</span><span class="na">cbf</span><span class="p">.</span><span class="na">invalid_pixel_mask</span><span class="o">=</span><span class="nx">mask</span><span class="p">.</span><span class="na">pickle</span> <span class="o">\</span>
+   <span class="nx">input</span><span class="p">.</span><span class="na">xtc_dir</span><span class="o">=/</span><span class="nx">net</span><span class="o">/</span><span class="nx">viper</span><span class="o">/</span><span class="nx">raid1</span><span class="o">/</span><span class="nx">mlxd_LM14</span><span class="o">/</span><span class="nx">psdm</span><span class="o">/</span><span class="nx">cxi</span><span class="o">/</span><span class="nx">cxim1416</span><span class="o">/</span><span class="nx">xtc</span> <span class="o">\</span>
+   <span class="nx">input</span><span class="p">.</span><span class="na">calib_dir</span><span class="o">=/</span><span class="nx">net</span><span class="o">/</span><span class="nx">viper</span><span class="o">/</span><span class="nx">raid1</span><span class="o">/</span><span class="nx">mlxd_LM14</span><span class="o">/</span><span class="nx">psdm</span><span class="o">/</span><span class="nx">cxi</span><span class="o">/</span><span class="nx">cxim1416</span><span class="o">/</span><span class="nx">calib</span> <span class="o">\</span>
+   <span class="nx">spotfinder</span><span class="p">.</span><span class="na">filter</span><span class="p">.</span><span class="na">min_spot_size</span><span class="o">=</span><span class="mi">2</span> <span class="nx">spotfinder</span><span class="p">.</span><span class="na">threshold</span><span class="p">.</span><span class="na">xds</span><span class="p">.</span><span class="na">gain</span><span class="o">=</span><span class="mi">7</span> <span class="o">\</span>
+   <span class="nx">spotfinder</span><span class="p">.</span><span class="na">threshold</span><span class="p">.</span><span class="na">xds</span><span class="p">.</span><span class="na">global_threshold</span><span class="o">=</span><span class="mi">100</span> <span class="nx">dispatch</span><span class="p">.</span><span class="na">integrate</span><span class="o">=</span><span class="nx">False</span> <span class="o">\</span>
+   <span class="nx">output</span><span class="p">.</span><span class="na">dir</span><span class="o">=</span><span class="s">"./"</span> <span class="o">&gt;&gt;</span> <span class="nx">xtc_process</span><span class="p">.</span><span class="na">log</span> <span class="o">&amp;</span>
+</code></pre>
+</div>
+
+<p>For the above command we have specified many of the same parameter values as used with <code class="highlighter-rouge">cxi.mpi_average</code> previously. We have also chosen to pass some modifications to the parameters; to examine peaks with a spot size of at least 2 (<code class="highlighter-rouge">spotfinder.filter.min_spot_size=2</code>), using an estimated gain of 7 (<code class="highlighter-rouge">spotfinder.threshold.xds.gain=7</code>, determined from the previous section),  a minimum count value of 100 for being considered a background value (<code class="highlighter-rouge">spotfinder.threshold.xds.global_threshold=100</code>), and using the pixel mask determined previously (<code class="highlighter-rouge">format.cbf.invalid_pixel_mask=mask.pickle</code>). This command will iterate through the data for the given run number, and determine the spot positions, proceed to determine which peaks can contribute to the model, and then proceed to index them to construct a crystal model. The integration step is skipped for the above command (<code class="highlighter-rouge">dispatch.integrate=False</code>) as we intend to discovery and index for the initial steps only, allowing the process to run much faster. Sample print output during the processing of data for the above parameters is:</p>
+
+<pre><code class="language-txt">    Accepted 2016-07-08T22:05Z24.133
+    Processing shot 20160708220524133
+    Setting spotfinder.filter.min_spot_size=6
+    Configuring spot finder from input parameters
+    ----------------------------------------------------------------------------
+    Finding strong spots in imageset 0
+    ----------------------------------------------------------------------------
+
+
+    Finding spots in image 1 to 1...
+    Setting chunksize=1
+    Extracting strong pixels from images
+     Using multiprocessing with 1 parallel job(s)
+
+    Found 393702 strong pixels on image 1
+
+    Extracted 217561 spots
+    Removed 210778 spots with size &lt; 6 pixels
+    Removed 5 spots with size &gt; 100 pixels
+    Calculated 6778 spot centroids
+    Calculated 6778 spot intensities
+    Filtered 6155 of 6778 spots by peak-centroid distance
+    Found 6155 bright spots
+    Found max_cell: 495.9 Angstrom
+    Setting d_min: 9.69
+    FFT gridding: (256,256,256)
+    Number of centroids used: 0
+</code></pre>
+<p>The print-statement output of <code class="highlighter-rouge">cctbx.xfel.xtc_process</code> can be followed by running <code class="highlighter-rouge">tail -f xtc_process.log</code>. Though not an exhaustive list of the parameterisation of <code class="highlighter-rouge">cctbx.xfel.xtc_process</code>, the full list of available options is available by passing the option <code class="highlighter-rouge">-c</code>. The provided list will be displayed in <a href="http://cctbx.sourceforge.net/libtbx_phil.html">PHIL file format</a>. To modify these values treat them hierarchically, where parents are passed directly to the command, followed by <code class="highlighter-rouge">.</code> to access and set children. The previous command shows examples of using this format. One thing to note is that we have not parameterised any element of the indexing or refinement stages of the process. This can be performed by appending some additional options to the end of the <code class="highlighter-rouge">cctbx.xfel.xtc_process</code> command above, with names and uses determined from the full list of options.</p>
+
+<p>Upon completion, the command will generate output files into the specified directory (currently <code class="highlighter-rouge">./</code>). CBF images will be created for all indexed files, as well as files containing the indexing data from the run (<code class="highlighter-rouge">refine_experiments.json</code> and <code class="highlighter-rouge">indexed.pickle</code>).</p>
+
+<h2 id="common-mode-correction">Common Mode correction</h2>
+<p>Where the gain was discussed to be constant across time for a given pixel, the common mode is a spatially invariant offset to a detector sensor for a given shot. To ensure use of the common mode corection algorithm the option <code class="highlighter-rouge">format.cbf.common_mode.algorithm=default</code> can be specified, or alternatively <code class="highlighter-rouge">custom</code> can be chosen. More details can be found in the CCN article. This section will be updated with changes to the models and with newer steps as they are determined. For the purposes of what is being discussed here, the <code class="highlighter-rouge">default</code> setting will be sufficient.</p>
+
+<h2 id="refinement-of-detector-parameters">Refinement of detector parameters</h2>
+<p>Assuming the above command ran successfully, an initial set of indexed data should be available. This can then be used to better refine the tile positions on the CSPAD detector, and can be calculated using the command <code class="highlighter-rouge">cspad.cbf_metrology</code>. Firstly, we can concatenate the indexing results from several different images into a single dataset (<code class="highlighter-rouge">dials.combine_experiments</code>), which is performed with:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>  dials.combine_experiments reference_from_experiment.average_detector<span class="o">=</span>True <span class="se">\</span>
+   reference_from_experiment.average_hierarchy_level<span class="o">=</span>0 <span class="se">\</span>
+   output.experiments_filename<span class="o">=</span>cspad_combined_experiments.json <span class="se">\</span>
+   output.reflections_filename<span class="o">=</span>cspad_combined_reflections.pickle <span class="se">\</span>
+   cspad_combine.phil
+</code></pre>
+</div>
+
+<p>For the refinement, it is necessary to generate a PHIL file, containing all the essential parameters. Assuming the combination dataset is <code class="highlighter-rouge">cspad_combined_experiments.json</code> and <code class="highlighter-rouge">cspad_combined_reflections.pickle</code> as output from above, the refinement command can be run as:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>  <span class="nb">export </span><span class="nv">TAG</span><span class="o">=</span>&lt;some postfix string&gt;
+  cspad.cbf_metrology <span class="nv">tag</span><span class="o">=</span><span class="k">${</span><span class="nv">TAG</span><span class="k">}</span> ./ <span class="nv">n_subset</span><span class="o">=</span>2000 <span class="se">\</span>
+    <span class="nv">split_dataset</span><span class="o">=</span>True cxim1416-refine.phil rmsd_filter.enable<span class="o">=</span>False
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">cxim1416-refine.phil</code> is a PHIL file containing the parameters for refinement. The options can be examined by passing the <code class="highlighter-rouge">-c</code> option, or by referring to the CCN article for further information. The resulting output file will be <code class="highlighter-rouge">0-end.data.${TAG}_1</code>, and can then be used as the new version of the metrology file. To ensure the new file is a better fit for the experimental observations, the commands <code class="highlighter-rouge">cspad.detector_shifts</code> and <code class="highlighter-rouge">cspad.detector_statistics</code> can be run as:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>  cspad.detector_shifts <span class="k">${</span><span class="nv">TAG</span><span class="k">}</span>_1_filtered_experiments.json <span class="se">\</span>
+   <span class="k">${</span><span class="nv">TAG</span><span class="k">}</span>_1_filtered_reflections.pickle <span class="se">\</span>
+   <span class="k">${</span><span class="nv">TAG</span><span class="k">}</span>_1_filtered_experiments_level2.json <span class="se">\</span>
+   <span class="k">${</span><span class="nv">TAG</span><span class="k">}</span>_1_filtered_reflections_level2.pickle &gt;&gt; det_shift.log;
+  cspad.detector_statistics <span class="nv">tag</span><span class="o">=</span><span class="k">${</span><span class="nv">TAG</span><span class="k">}</span> &gt;&gt; det_stat.log;
+</code></pre>
+</div>
+
+<p>The output of these two commands will hold information on the quality of the refinement, and can be used to determine if further refinement steps are required.</p>
+
+<h2 id="integration">Integration</h2>
+<p>With the successful refinement of the detector metrology using the previous steps, the data can now be integrated effectively, by specifying <code class="highlighter-rouge">dispatch.integrate=True</code> for <code class="highlighter-rouge">cctbx.xfel.xtc_process</code>. Additional output files will now be generated in the form of <code class="highlighter-rouge">int-0-&lt;timestamp&gt;.pickle</code>, which are the input arguments for the data merging and scaling command <code class="highlighter-rouge">cxi.merge</code>, and the post-refinement command <code class="highlighter-rouge">prime.postrefine.</code> We will discuss the use of these commands <a href="merge-scale.html">here</a>.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <!--h2 class="footer-heading">ExaFEL Project</h2-->
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              ExaFEL Project
+            
+            </li>
+            
+            <li><a href="mailto:loriordan@lbl.gov">loriordan@lbl.gov</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>ExaFEL Research Project, 2017</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Calibrating the CSPad detector with experimental data</title>
+  <meta name="description" content="ExaFEL Research Project, 2017">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:4000/cspad-calib">
+  <link rel="alternate" type="application/rss+xml" title="ExaFEL Project" href="/feed.xml">
+
+  
+</head>
+
+  <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+   <link rel="stylesheet" href="w3.css"> 
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">ExaFEL Project</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <!--div class="trigger">
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+            <a class="page-link" href="/batch">Batch processing of data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/build-test">Testing the software pipeline</a>
+            
+          
+            
+            
+            <a class="page-link" href="/cspad-calib">Calibrating the CSPad detector with experimental data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/data-paths">Data paths</a>
+            
+          
+            
+            
+            <a class="page-link" href="/disc-refine">Spot discovery and refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/docker">Building and using Docker images with Shifter</a>
+            
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/merge-scale">Merging, scaling and post-refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/psana-cctbx-install">Installing the psana-cctbx toolchain</a>
+            
+          
+            
+            
+            <a class="page-link" href="/ld91-knl">Analysing the LD91 data using Cori</a>
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+      </div-->
+      </nav>
+    
+  </div>
+</header>
+
+    <style type="text/css">
+.mlxd-sidebar{height:100%;width:160px;background-color:#fdfdfd;position:absolute!important;z-index:1;overflow:auto}
+
+
+
+a:link {
+    color:darkslateblue;
+    font-weight:bold;
+}
+
+
+/* visited link */
+a:visited {
+    color: darkslategrey;
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+}
+
+/* selected link */
+a:active {
+    color: darkgreen;
+}
+
+</style>
+
+<div class="mlxd-sidebar w3-bar-block" style="width:15%">
+  <a href="/docs" class="w3-bar-item w3-button">ExaFEL main page</a>
+  <a href="/docs/about" class="w3-bar-item w3-button">About</a>
+  <a href="#" class="w3-bar-item w3-button">Project info</a>
+  <!--a href="#" class="w3-bar-item w3-button">Page list</a-->
+</div>
+
+
+
+
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Calibrating the CSPad detector with experimental data</h1>
+  </header>
+
+
+  <div class="post-content">
+    <p>With the toolchain <a href="psana-cctbx-install.html">built, installed</a> and <a href="build-test.html">verified to work</a>
+the next step is to work through the processing pipeline using some real data.</p>
+
+<p>For the processing steps listed below, we will be making use of the guidelines given by this <a href="http://www.phenix-online.org/newsletter/CCN_2016_07.pdf#page=18">CCN article</a>. Additional information can be found on the <a href="http://viper.lbl.gov/cctbx.xfel/index.php/Main_Page">cctbx.xfel wiki</a>. As per the information in the newsletter article, the process of operating the cctbx.xfel pipeline involves three main stages:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Calibration
+Discovery
+Batch processing
+</code></pre>
+</div>
+
+<p>Further information on these stages is provided in the above resource locations.</p>
+
+<h1 id="step-1-calibration">Step 1. Calibration</h1>
+
+<p>This step refers to the initialisation of the appropriate parameters for the detector used in the experiment. The alignment of the detector segments, determining which pixels are hot/cold (always bright, or always dark), calculating averages, and determining the detector gain are among the necessary steps for successfully analysing the data.</p>
+
+<p>Here, we have assumed the <code class="highlighter-rouge">$PERM</code> environment variable is still set from the installation process outlined in post (install_post). For the purpose of this work, we are using <a href="https://confluence.slac.stanford.edu/display/PSDMInternal/Pds+Xtc">XTC</a> data as collected from the <a href="http://slac.stanford.edu/pubs/slacpubs/15250/slac-pub-15284.pdf">CSPAD</a> detector at <a href="https://confluence.slac.stanford.edu/display/PSDM/CSPAD+Alignment">LCLS</a> (that is, raw data from the LCLS detectors). To be found by psana-cctbx.xfel, this data must be maintained in a specific directory hierarchy. Assuming a dataset named <code class="highlighter-rouge">cxim1416</code>, the following layout must be adhered to:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">$PERM</span>/psdm/CXI/cxim1416/xtc
+</code></pre>
+</div>
+
+<p>Additionally, the calibration data for the detector must be also maintained in the same directory:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">$PERM</span>/psdm/CXI/cxim1416/calib
+</code></pre>
+</div>
+<p>While the path to these directories can be specified and known by the given hierarchy and using the <code class="highlighter-rouge">SIT_*</code> environment variables, it is also possible to directly specify the paths to <code class="highlighter-rouge">cxi.mpi_average</code>&lt;and potentially cxi.xtc_dump, cxi.xtc_process&gt;. That is to say, we can negate the use of the environment variable <code class="highlighter-rouge">SIT_PSDM_DATA</code>, and pass the directories as arguments.</p>
+
+<h2 id="averaging">Averaging</h2>
+
+<p>For this stage, we begin by analysing data from a dark run (i.e. where X-rays were not incident upon the target), as this can tell which pixels are trustworthy for further examinations. We perform this using the <code class="highlighter-rouge">cxi.mpi_average</code> command, as follows:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>cxi.mpi_average --experiment<span class="o">=</span>cxim1416 --run<span class="o">=</span>54 <span class="se">\</span>
+--address<span class="o">=</span>CxiDs1.0:Cspad.0 --detz-offset<span class="o">=</span>585.5 <span class="se">\</span>
+--verbose -g 6.85 --xtc-dir<span class="o">=</span><span class="nv">$PERM</span>/psdm/cxi/cxim1416/xtc <span class="se">\</span>
+--calib_dir<span class="o">=</span><span class="nv">$PERM</span>/psdm/cxi/cxim1416/calib
+</code></pre>
+</div>
+
+<p>where <code class="highlighter-rouge">--experiment=cxim1416</code> is the experiment name, <code class="highlighter-rouge">--run=54</code> is the specific run of the data to be analysed, <code class="highlighter-rouge">--address=CxiDs1.0:Cspad.0</code> specifies the detector type, <code class="highlighter-rouge">--detz-offset=585.5</code> is the Z-axis offset of the X-ray source from the detector, <code class="highlighter-rouge">-g 6.85</code> is the gain ratio betwen low and high gain detector regions, <code class="highlighter-rouge">--xtc-dir=$PERM/psdm/cxi/cxim1416/xtc</code> and <code class="highlighter-rouge">--calib_dir=$PERM/psdm/cxi/cxim1416/calib</code> are the previously mentioned data and calibration directory paths.</p>
+
+<p>The above command generates average (<code class="highlighter-rouge">cxim1416_avg-r0054.cbf</code>), standard deviation (<code class="highlighter-rouge">cxim1416_stddev-r0054.cbf</code>), and composite maximum (<code class="highlighter-rouge">cxim1416_max-r0054.cbf</code>) output images over all events detected for the given run number.</p>
+
+<p>The XTC file naming scheme is composed of a numerical identifier (<code class="highlighter-rouge">eXYZ-</code>), with mapping to name determined from <code class="highlighter-rouge">$PERM/psdm/data/ExpNameDb/experiment-db.dat</code>, followed by the run number (<code class="highlighter-rouge">rXYZW-</code>) indicating a specific instance of data collection. Given the throughput of data, there are multiple data acquisition (DAQ) systems working simulataneously on the detector, and each output their own data stream (<code class="highlighter-rouge">sXY-</code>). The recombination of this data is performed by psana, and abstracted away from cctbx.xfel users. Next, the chunk number is given, wherein the data is broken up into chunks of a given size. As the data is streamed from the detector, when a certain threshold is reached, the data can be broken into a new chunk (<code class="highlighter-rouge">cXY</code>). For the above command, the processing would be performed on the streams matching <code class="highlighter-rouge">e780-r0054-s[0-9][0-9]-c[0-9][0-9].xtc</code>.</p>
+
+<h2 id="pixel-mask">Pixel mask</h2>
+<p>From the previous step, we have created three images which can be used to determine which pixels can be trusted for the experimental data. These are based on the detected pixel intensities, measured in analogue-to-digital units (ADU), <script type="math/tex">I_{xy}^{\xi}</script>, where <script type="math/tex">x,y</script> are pixel indices along the XY plane, and <script type="math/tex">\xi \in \{\textrm{avg,std,max} \}</script> denotes the average, standard deviation, and maximum images respectively. For the average image data:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+I_{xy}^{\textrm{avg}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
+I_{xy}^{\textrm{avg}} &\gt 2\times10^3 &&\rightarrow \textrm{hypersensitive pixel.}
+    \end{align} %]]></script>
+
+<p>Similarly for the standard deviation image,</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+I_{xy}^{\textrm{std}} &\leq 0 &&\rightarrow \textrm{dead pixel}  \\
+I_{xy}^{\textrm{std}} &\gt 10 &&\rightarrow \textrm{hypersensitive pixel,}
+    \end{align} %]]></script>
+
+<p>and for the composite maximum,</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+I_{xy}^{\textrm{max}} &\lesssim 300 &&\rightarrow \textrm{dead pixel,}  \\
+    \end{align} %]]></script>
+
+<p>where the composite maximum has only a lower bounded value. Assuming a 1/0 Boolean flag for every pixel, and the above intensity ranges, we can define a mask for trusted and untrusted pixels, <script type="math/tex">F_{jk}</script>, as</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+F_{xy} = \begin{cases}
+1, & \textrm{if } (0 \leq I_{xy}^{\textrm{avg}} \leq 2\times10^3) \wedge (0 \leq I_{xy}^{\textrm{std}} \leq 10) \wedge (300 \leq I_{xy}^{\textrm{max}}) \\
+0, & \textrm{otherwise}
+\end{cases}. %]]></script>
+
+<p>where <script type="math/tex">\wedge</script> denotes a logical AND operation. Performing an element-wise (Hadamard) product of the resulting mask values with the collected data allows only the values that are trusted to “sieve” through the mask and be used in further analysis.</p>
+
+<h3 id="creating-the-mask">Creating the mask</h3>
+<p>To create the mask we make use of the averaged and standard deviation data for a dark run as discussed above, as well as a maximum image of a bright run we intend to apply the mask to. Assuming <code class="highlighter-rouge">--run=54</code> for a dark run, and <code class="highlighter-rouge">--run=74</code> for a bright run, we construct the mask as follows:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>  cxi.make_dials_mask --maxproj-min<span class="o">=</span>300 -o mask.pickle <span class="se">\</span>
+  cxim1416_avg-r0054.cbf cxim1416_stddev-r0054.cbf cxim1416_max-r0074.cbf
+</code></pre>
+</div>
+
+<p>The output file <code class="highlighter-rouge">mask.pickle</code> is in a python specific file format known as <a href="http://viper.lbl.gov/cctbx.xfel/index.php/File_formats">pickle</a>, for holding binary and metadata. We can set the lower threshold of the max limit manually (<code class="highlighter-rouge">--maxproj-min=300</code>), as it may require fine tuning to find the optimal value for the dataset. The resulting file maximum file <code class="highlighter-rouge">--run=74</code> can be visualised with the <a href="http://dials.lbl.gov/">DIALS</a> image viewer as using the generated mask as</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>  dials.image_viewer cxim1416_max-r0074.cbf <span class="nv">mask</span><span class="o">=</span>mask.pickle
+</code></pre>
+</div>
+
+<h3 id="quadrant-alignment">Quadrant alignment</h3>
+<p>The CSPad detector features <script type="math/tex">32\times 2</script> Si detectors, of which are distributed over four quadrants for the detector. It is necessary to determine the optimal alignment of these quadrants relative to one another, as it can vary across experiments due to the modularity of the detector. As such, one method to obtain and correct for the inter-quadrant spacings is through the use of powder diffraction rings. This assumes crystals of all possible orientations contribute to the diffraction process, and therefore generate rings at a radius determined by the beam wavelength. This is due to all possible Fourier components (Bragg peaks) being observed. By assuming that these rings are concentric over a <script type="math/tex">2\pi</script> angular sweep, the quadrant offsets can be adjusted to optimise this annular condition.</p>
+
+<p>This is checked with the command <code class="highlighter-rouge">cspad.quadrants_cbf</code>. Assuming the beam centre is appropriately positioned relative to the detector quadrants, a rotation of the quadrant through <script type="math/tex">\pi/4</script> about the beam center yield high correlation with the unrotated data. The above command performs a planar search for the offsets that optimise this correlation, and use these to determine the alignment of the quadrants. Following the correlation examination, the command outputs a new file with the corrected quadrant values. Assuming the composite maximum for a bright run (<code class="highlighter-rouge">--run=74</code>) the command is run as follows:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>cspad.quadrants_cbf ./cxim1416_max-r0074.cbf
+</code></pre>
+</div>
+
+<p>For this data set, the resulting output was</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Doing cross-correlation on panel ARRAY_D0Q0S1A0
+Searching a grid with dimensions <span class="o">(</span>41, 41<span class="o">)</span>
+max cc  0.1589 is at <span class="o">(</span>6, 1<span class="o">)</span>
+Doing cross-correlation on panel ARRAY_D0Q1S1A0
+Searching a grid with dimensions <span class="o">(</span>41, 41<span class="o">)</span>
+max cc  0.1611 is at <span class="o">(</span>-14, -3<span class="o">)</span>
+Doing cross-correlation on panel ARRAY_D0Q2S1A0
+Searching a grid with dimensions <span class="o">(</span>41, 41<span class="o">)</span>
+max cc  0.1491 is at <span class="o">(</span>-7, 11<span class="o">)</span>
+Doing cross-correlation on panel ARRAY_D0Q3S1A0
+Searching a grid with dimensions <span class="o">(</span>41, 41<span class="o">)</span>
+max cc  0.1794 is at <span class="o">(</span>-4, 11<span class="o">)</span>
+Average CC:  0.1621
+Saving result to ./cxim1416_max-r0074_cc.cbf
+</code></pre>
+</div>
+<p>indicating very low correlations overall (<script type="math/tex">\textrm{CC} \approx 16\%</script>). To better align the quadrants, we should chose a data set that offers a much higher cross correlation. One such method for this is to examine all possible maxima for a dataset and to use that with highest correlation values for the quadrant alignment. Alternatively, we can generate a maxima of the maxima, and use this to calculate the cross-correlation with the following command:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>cxi.cspad_average <span class="k">*</span>_max_<span class="k">*</span>.cbf -m all_max.cbf
+cspad.quadrants_cbf all_max.cbf
+</code></pre>
+</div>
+<p>with the resulting output file named <code class="highlighter-rouge">all_max_cc.cbf</code>. The refined alignment data will be stored in this CBF file, and must be converted to the appropriate SLAC file format before use. The specific file format is unique to SLAC, with full details on the CSPad detector geometry, alignment and associated file format information found <a href="https://confluence.slac.stanford.edu/display/PSDM/Detector+Geometry">here</a> and <a href="https://confluence.slac.stanford.edu/display/PSDM/CSPAD+Geometry+and+Alignment">here</a>. This conversion is performed by running the command</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>cxi.cbfheader2slaccalib <span class="nv">cbf_header</span><span class="o">=</span>all_max_cc.cbf
+</code></pre>
+</div>
+<p>with the command generating <code class="highlighter-rouge">0-end.data</code> as an output file. The file must then be placed into the <code class="highlighter-rouge">calib</code> folder in the following location:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mv <span class="nv">$PERM</span>/psdm/cxi/&lt;experiment name&gt;/calib/&lt;detector <span class="nb">type</span>&gt;/&lt;detector name&gt;/geometry/0-end.data <span class="nv">$PERM</span>/psdm/cxi/&lt;experiment name&gt;/calib/&lt;detector <span class="nb">type</span>&gt;/&lt;detector name&gt;/geometry/0-end.data.v0;
+mv ./0-end.data <span class="nv">$PERM</span>/psdm/cxi/&lt;experiment name&gt;/calib/&lt;detector <span class="nb">type</span>&gt;/&lt;detector name&gt;/geometry/0-end.data.v1
+</code></pre>
+</div>
+
+<p>Note that due to the presence of the previous <code class="highlighter-rouge">0-end.data</code> geometry calibration file, we renamed this to indicate it was version 0, and moved the refined file to the location with post-fix for version 1. This allows for a history of the files to be made, and is performed also for subsequent refinements. For the <code class="highlighter-rouge">cxim1416</code> dataset used previously, the above command becomes</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mv <span class="nv">$PERM</span>/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data <span class="nv">$PERM</span>/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v0;
+mv ./0-end.data <span class="nv">$PERM</span>/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v1
+ln -sf <span class="nv">$PERM</span>/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data.v1 <span class="nv">$PERM</span>/psdm/cxi/cxim1416/calib/CsPad::CalibV1/CxiDs1.0:Cspad.0/geometry/0-end.data
+</code></pre>
+</div>
+<p>where the updated file was soft-linked to the <code class="highlighter-rouge">0-end.data</code> naming convention. This procedure is repeated for future refinements. Next, we will focus on finding <a href="disc-refine.html">Bragg peaks, indexing, and refinement</a>.</p>
+
+<!---
+---
+
+Note:
+  The CCN newsletter article mentions performing manual calibration using the LCLS tool `calibman`, which is installed as part of psana. Running the calibman command line interface requires having the MySQL package available for python. This is installed with conda as
+
+  ```bash
+conda install mysql-python
+  ```
+  However, note that calibman requires a user to be within the LCLS psana environment, and currently does not work on external systems.
+  -->
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <!--h2 class="footer-heading">ExaFEL Project</h2-->
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              ExaFEL Project
+            
+            </li>
+            
+            <li><a href="mailto:loriordan@lbl.gov">loriordan@lbl.gov</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>ExaFEL Research Project, 2017</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Merging, scaling and post-refinement</title>
+  <meta name="description" content="ExaFEL Research Project, 2017">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:4000/merge-scale">
+  <link rel="alternate" type="application/rss+xml" title="ExaFEL Project" href="/feed.xml">
+
+  
+</head>
+
+  <script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+   <link rel="stylesheet" href="w3.css"> 
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">ExaFEL Project</a>
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <!--div class="trigger">
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+            <a class="page-link" href="/batch">Batch processing of data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/build-test">Testing the software pipeline</a>
+            
+          
+            
+            
+            <a class="page-link" href="/cspad-calib">Calibrating the CSPad detector with experimental data</a>
+            
+          
+            
+            
+            <a class="page-link" href="/data-paths">Data paths</a>
+            
+          
+            
+            
+            <a class="page-link" href="/disc-refine">Spot discovery and refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/docker">Building and using Docker images with Shifter</a>
+            
+          
+            
+            
+          
+            
+            
+            <a class="page-link" href="/merge-scale">Merging, scaling and post-refinement</a>
+            
+          
+            
+            
+            <a class="page-link" href="/psana-cctbx-install">Installing the psana-cctbx toolchain</a>
+            
+          
+            
+            
+            <a class="page-link" href="/ld91-knl">Analysing the LD91 data using Cori</a>
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+      </div-->
+      </nav>
+    
+  </div>
+</header>
+
+    <style type="text/css">
+.mlxd-sidebar{height:100%;width:160px;background-color:#fdfdfd;position:absolute!important;z-index:1;overflow:auto}
+
+
+
+a:link {
+    color:darkslateblue;
+    font-weight:bold;
+}
+
+
+/* visited link */
+a:visited {
+    color: darkslategrey;
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+}
+
+/* selected link */
+a:active {
+    color: darkgreen;
+}
+
+</style>
+
+<div class="mlxd-sidebar w3-bar-block" style="width:15%">
+  <a href="/docs" class="w3-bar-item w3-button">ExaFEL main page</a>
+  <a href="/docs/about" class="w3-bar-item w3-button">About</a>
+  <a href="#" class="w3-bar-item w3-button">Project info</a>
+  <!--a href="#" class="w3-bar-item w3-button">Page list</a-->
+</div>
+
+
+
+
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Merging, scaling and post-refinement</h1>
+  </header>
+
+
+  <div class="post-content">
+    <p>The output of the steps outlined in the <a href="disc-refine.html">discovery and refinement steps</a> generally holds information on Miller indices, integrated intensities, and errors for the observed reflections<script type="math/tex">~</script>[<a href="http://viper.lbl.gov/cctbx.xfel/index.php/Merging">1</a>]. The merging process aims to unify these data into a single set. Namely, the data is combined and adjusted so all values are consistent and within the same range.</p>
+
+<h2 id="merging-and-scaling-with-cximerge">Merging and scaling with <strong>cxi.merge</strong></h2>
+
+<p>For the scaling and merging procedure, we use the program <code class="highlighter-rouge">cxi.merge</code>. Again, to view all available options the <code class="highlighter-rouge">-h</code> flag can be passed, or also with <code class="highlighter-rouge">-v</code> for more information. For the merging of a data set determined from the previous steps, we can supply the following command:</p>
+
+<pre><code class="language-Bash">    cxi.merge data=&lt;integrated data dir&gt; pixel_size=0.11 \
+    output.prefix=cxim1416_merged model=&lt;PDB reference for scaling&gt; \
+    nproc=&lt;num of cores&gt; backend=FS scaling.mtz_file=cxim1416_out.mtz
+</code></pre>
+<p>The <code class="highlighter-rouge">model</code> option provides a <a href="http://www.rcsb.org/pdb/home/home.do">PDB</a> model to the command, and allows for a known structure to be used to assist with the scaling of the data. The pixel size chosen is the known value for the CSPAD detectors. <code class="highlighter-rouge">backend</code> informs the command to write all data to a flat file during the processing (can also specify databases installed on local/remote systems). The above command can be further modified with different options to better suit the dataset being examined. Example usage of the commands are given on the <a href="http://viper.lbl.gov/cctbx.xfel/index.php/2017_cxi_merge_tutorial">cctbx.xfel wiki</a>.</p>
+
+<h2 id="post-refinement-with-primepostrefine">Post-refinement with <strong>prime.postrefine</strong></h2>
+
+<p>The program <code class="highlighter-rouge">prime</code> [<a href="http://dx.doi.org/10.7554/eLife.05421">2</a>] is used to perform post-refinement on the resulting data following the integration steps, as well as the subsequent merging. As such, <code class="highlighter-rouge">prime.postrefine</code> can be seen as an alternative approach to using <code class="highlighter-rouge">cxi.merge</code>, where the authors suggest it can improve results using lower numbers of crystal images. As before, the full list of available arguments can be viewed by running <code class="highlighter-rouge">prime.postrefine -h</code>. For more extensive coverage on the use of <code class="highlighter-rouge">prime</code> please see the <a href="http://viper.lbl.gov/cctbx.xfel/index.php/2017_prime_tutorial">tutorial</a>.</p>
+
+<p>For the purpose of these steps, we will show example commands to post-refine and merge the data from the integration stages. This step will potentially be the final in our data analysis pipeline, though convergence may require several iterations. For a generic PHIL file, the command <code class="highlighter-rouge">prime.run &gt; params.phil</code> without any arguments generates the required file format for later editing.</p>
+
+<p>For the purpose of this command, we will modify the above PHIL file, changing the below values with the specified parameters.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code>    <span class="c">### params.phil</span>
+    <span class="c">### prime.postrefine parameters file</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">integrated</span> <span class="n">data</span> <span class="n">location</span><span class="o">&gt;</span>
+    <span class="c">#if target unit cell group is known, can be used to discard outliers</span>
+    <span class="n">target_unit_cell</span> <span class="o">=</span> <span class="mi">100</span> <span class="mi">100</span> <span class="mi">50</span> <span class="mi">90</span> <span class="mi">90</span> <span class="mi">120</span> <span class="c">#{a b c} {\alpha \beta \gamma}</span>
+    <span class="n">target_space_group</span> <span class="o">=</span> <span class="n">P6</span>
+    <span class="n">n_residues</span> <span class="o">=</span> <span class="mi">128</span>
+
+    <span class="c">#CSPAD detector pixel size (mm^2)</span>
+    <span class="n">pixel_size_mm</span> <span class="o">=</span> <span class="mf">0.11</span>
+    <span class="c">#Sample postrefine parameters</span>
+    <span class="n">postref</span> <span class="p">{</span>
+      <span class="n">scale</span> <span class="p">{</span>
+        <span class="n">d_min</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="n">d_max</span> <span class="o">=</span> <span class="mf">50.</span>
+        <span class="n">sigma_min</span> <span class="o">=</span> <span class="mf">1.5</span>
+        <span class="n">partiality_min</span> <span class="o">=</span> <span class="mf">0.1</span>
+      <span class="p">}</span>
+      <span class="n">allparams</span> <span class="p">{</span>
+        <span class="n">flag_on</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">d_min</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="n">d_max</span> <span class="o">=</span> <span class="mf">50.</span>
+        <span class="n">sigma_min</span> <span class="o">=</span> <span class="mf">1.5</span>
+        <span class="n">partiality_min</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="n">uc_tolerance</span> <span class="o">=</span> <span class="mi">5</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c">#Sample postrefine parameters</span>
+    <span class="n">merge</span> <span class="p">{</span>
+     <span class="n">d_min</span> <span class="o">=</span> <span class="mf">1.</span>
+     <span class="n">d_max</span> <span class="o">=</span> <span class="mf">50.</span>
+     <span class="n">sigma_min</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.0</span>
+     <span class="n">partiality_min</span> <span class="o">=</span> <span class="mf">0.1</span>
+     <span class="n">uc_tolerance</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="p">}</span>
+    <span class="n">n_processors</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">available</span> <span class="n">cores</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>To perform the processing step we now pass run <code class="highlighter-rouge">prime.run ./params.phil</code>. The program output will be placed into a directory <code class="highlighter-rouge">Prime_Run_&lt;run number&gt;</code>, with all the merged statistics available in the file <code class="highlighter-rouge">log.txt</code>. This will conclude the processing steps of the data, which can now be examined for further analysis.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <!--h2 class="footer-heading">ExaFEL Project</h2-->
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              ExaFEL Project
+            
+            </li>
+            
+            <li><a href="mailto:loriordan@lbl.gov">loriordan@lbl.gov</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>ExaFEL Research Project, 2017</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
