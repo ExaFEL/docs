@@ -110,7 +110,8 @@
 
 .footer-heading {
   @include relative-font-size(1.125);
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: $spacing-unit / 3;
+  margin-left: 200px + $spacing-unit / 2;
 }
 
 .contact-list,
@@ -122,7 +123,7 @@
 .footer-col-wrapper {
   @include relative-font-size(0.9375);
   color: $grey-color;
-  margin-left: -$spacing-unit / 2;
+  margin-left: 200px -$spacing-unit / 2;
   @extend %clearfix;
 }
 
@@ -135,6 +136,7 @@
 .footer-col-1 {
   width: -webkit-calc(35% - (#{$spacing-unit} / 2));
   width:         calc(35% - (#{$spacing-unit} / 2));
+  
 }
 
 .footer-col-2 {

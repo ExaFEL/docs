@@ -230,7 +230,8 @@ pre {
 
 .footer-heading {
   font-size: 18px;
-  margin-bottom: 15px; }
+  margin-bottom: 10px;
+  margin-left: 215px; }
 
 .contact-list,
 .social-media-list {
@@ -240,7 +241,7 @@ pre {
 .footer-col-wrapper {
   font-size: 15px;
   color: #828282;
-  margin-left: -15px; }
+  margin-left: 185px; }
 
 .footer-col {
   float: left;
