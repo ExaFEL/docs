@@ -10,7 +10,7 @@
   <meta name="description" content="ExaFEL Research Project, 2017">
 
   <link rel="stylesheet" href="/assets/main.css">
-  <link rel="canonical" href="/ld91-knl">
+  <link rel="canonical" href="http://localhost:4000/ld91-knl">
   <link rel="alternate" type="application/rss+xml" title="ExaFEL Project" href="/feed.xml">
 
   
@@ -336,6 +336,104 @@ a:active {
     <p>The script will change into the current working directory, run the shifter shifter container with <strong>process.sh</strong> which takes <strong>process.phil</strong> as an argument.</p>
   </li>
 </ol>
+
+<p>While the processing steps listed above can be accomplished using an interactive session, for large jobs it is often better to submit them to the cluster queue.</p>
+
+<h2 id="results-of-output">Results of output</h2>
+<p>Using the above commands for merging, spotfinding, indexing, and performing metrology, the following data outputs were chosen for comparison with later versions of the code:</p>
+
+<h2 id="scaling-of-performance">Scaling of performance</h2>
+<p>Using 10 nodes of KNL (680 cores)</p>
+
+<hr />
+
+<table>
+  <thead>
+    <tr>
+      <th>Num. Processed</th>
+      <th> </th>
+      <th><script type="math/tex">t_{\textrm{offset}}</script></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>70971</td>
+      <td> </td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>71345</td>
+      <td> </td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>71893</td>
+      <td> </td>
+      <td>76</td>
+    </tr>
+    <tr>
+      <td>72624</td>
+      <td> </td>
+      <td>136</td>
+    </tr>
+    <tr>
+      <td>78495</td>
+      <td> </td>
+      <td>632</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>which is on average about 12 images per second.</p>
+
+<p>For a single node (68 cores), we get:</p>
+
+<hr />
+
+<table>
+  <thead>
+    <tr>
+      <th>Num. Processed</th>
+      <th style="text-align: center"> </th>
+      <th><script type="math/tex">t_{\textrm{offset}}</script></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>45586</td>
+      <td style="text-align: center"> </td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>45900</td>
+      <td style="text-align: center"> </td>
+      <td>151</td>
+    </tr>
+    <tr>
+      <td>46045</td>
+      <td style="text-align: center"> </td>
+      <td>212</td>
+    </tr>
+    <tr>
+      <td>46188</td>
+      <td style="text-align: center"> </td>
+      <td>281</td>
+    </tr>
+    <tr>
+      <td>46397</td>
+      <td style="text-align: center"> </td>
+      <td>366</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>which on average is approximately 2 images per second. Ideally we should see a linear increase in performance for adding more cores, but here an increase in core count by ten, only gives a performance increase of about 6 times.</p>
+
+<p>Performing linear extrapolation allows us to determine an estimated TTF (time-to-finish) for this job. For the above processed image count and times we can determine that for 100k events to process, the single node will take approximately 840 minutes (about 13 hours), and the 10 node job should take approximately 140 minutes. However, this scaling is an average, and dependenig upon the number of events counted at specific points in the code this value can vary by a large margin.</p>
 
 <hr />
 <p>To check the performance of the code run the <code class="highlighter-rouge">grep start *.txt | wc -l</code> in the <code class="highlighter-rouge">rXYZ/&lt;tag&gt;/out/debug</code> directory. This will list the number of files processed at any instance of time. If the total number of events are known, an estimate of the overall time required can be estimated by taking the change in event-number of time.</p>

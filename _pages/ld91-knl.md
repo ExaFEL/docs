@@ -167,8 +167,49 @@ where **process.sh** is defined as
     ```
 The script will change into the current working directory, run the shifter shifter container with **process.sh** which takes **process.phil** as an argument.
 
+While the processing steps listed above can be accomplished using an interactive session, for large jobs it is often better to submit them to the cluster queue.
+
+## Results of output
+Using the above commands for merging, spotfinding, indexing, and performing metrology, the following data outputs were chosen for comparison with later versions of the code:
 
 
+## Scaling of performance
+Using 10 nodes of KNL (680 cores)
+
+---
+
+| Num. Processed || $$t_{\textrm{offset}}$$ |
+| ------------- | - | -------------- |
+|     70971     ||       0       |
+|     71345     ||      28       |
+|     71893     ||      76       |
+|     72624     ||     136       |
+|     78495     ||     632       |
+
+---
+
+
+which is on average about 12 images per second.
+
+For a single node (68 cores), we get:
+
+---
+
+| Num. Processed | | $$t_{\textrm{offset}}$$ |
+| ------------- |:--:| ------------- |
+|     45586     | |       0       |
+|     45900     | |     151       |
+|     46045     | |     212       |
+|     46188     | |     281       |
+|     46397     | |     366       |
+
+---
+
+which on average is approximately 2 images per second. Ideally we should see a linear increase in performance for adding more cores, but here an increase in core count by ten, only gives a performance increase of about 6 times.
+
+
+
+Performing linear extrapolation allows us to determine an estimated TTF (time-to-finish) for this job. For the above processed image count and times we can determine that for 100k events to process, the single node will take approximately 840 minutes (about 13 hours), and the 10 node job should take approximately 140 minutes. However, this scaling is an average, and dependenig upon the number of events counted at specific points in the code this value can vary by a large margin.
 
 ---
 To check the performance of the code run the `grep start *.txt | wc -l` in the `rXYZ/<tag>/out/debug` directory. This will list the number of files processed at any instance of time. If the total number of events are known, an estimate of the overall time required can be estimated by taking the change in event-number of time.
