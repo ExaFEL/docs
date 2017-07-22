@@ -24,5 +24,10 @@ The following steps must be undertaken to analyse crystallographic data sets usi
 
   <br/>
 
+## Processing on Cori Phase II
+  1. [Shifter image creation](docker): building cctbx.xfel and loading onto Cori using the Shifter (Docker) container utility.
+  2. [Processing LD91](ld91-knl): data processing steps, performance, and analysis using cctbx.xfel on Cori Knight's Landing.
+
+
   ---
   <br/>
