@@ -2,8 +2,8 @@ title: ExaFEL Project
 email: loriordan@lbl.gov
 description: ExaFEL Research Project, 2017
 
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/docs" # the subpath of your site, e.g. /blog
+url: "https://exafel.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username:
 github_username:
 
