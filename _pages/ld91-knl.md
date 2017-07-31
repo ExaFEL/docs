@@ -15,7 +15,7 @@ For the purposes of an example, we will load the Shifter container onto a KNL lo
     salloc -N 1 -p debug --image=docker:mlxd/xfel:latest -t 00:30:00 -C knl -A <repo name> \
     --volume="<path to data>/cxi:/reg/d/psdm/CXI; \
     <path to data>/cxi:/reg/d/psdm/cxi; \
-    <path to experiment name database>/psdm/:/reg/g;" 
+    <path to experiment name database>/psdm/:/reg/g;"
     ```
 Alternatively, to load a container with a dynamically mountable **modules** directory, use
     ```bash
@@ -24,7 +24,7 @@ Alternatively, to load a container with a dynamically mountable **modules** dire
     <path to data>/cxi:/reg/d/psdm/cxi; \
     <path to experiment name database>/psdm/:/reg/g; \
     <path to modules>/modules:/modules"
-    ``` 
+    ```
 
 2. Load the Shifter container and run a terminal, setting the required paths for cctbx.xfel
     ```bash
@@ -55,7 +55,7 @@ Here we can parameterise which run number to process.
 
 4. Make a mask using the averaged data
     ```bash
-    #!/bin/bash 
+    #!/bin/bash
     ### make_mask.sh ###
     export SIT_DATA=/reg/g/psdm/data;
     export SIT_PSDM_DATA=/reg/d/psdm;
@@ -69,85 +69,42 @@ Here we can parameterise which run number to process.
     ```
 5. With the detector masks created we can now perform spotfinding and indexing on the data. For this we must define a PHIL file format to parameterise the spotfinding and indexing steps. To perform these steps for an initial spotfinding and indexing run of LD91 we used the PHIL file **process.phil** given by:
     ```xml
-    mp{ #Parameterise the multiprocessing method to use MPI and a client-server submission model
-        method=mpi
-        mpi{
-            method=client_server
-        }
-    }
-    dispatch{ #Turn off the integration steps and CBF output in initial indexing for metrology
-        integrate=False
+    dispatch{
+        integrate=True
         dump_indexed=False
     }
-    input{ #Experiment details
+    input{
         address=CxiDs2.0:Cspad.0
         experiment=cxid9114
-        run_num=113
+        reference_geometry=/global/cscratch1/sd/mlxd/DataProc/cxid9114/processing/metrology_r0113_013/013_1000_refined_experiments_step7_level2.json
     }
-    format { #Output format details and specifics for LD91
-        file_format=cbf
+    format {
         cbf{
             detz_offset=572.3938
-            invalid_pixel_mask=mask.pickle
+            invalid_pixel_mask=/global/cscratch1/sd/mlxd/DataProc/cxid9114/processing/mask.pickle
             override_energy=8950
             cspad{
                 gain_mask_value=6.85
-                common_mode.algorithm=custom
-                common_mode.custom_parameterization=5,50
             }
         }
     }
     border_mask {
         border=1
     }
-    spotfinder { #Sptofinding parameters
+    spotfinder {
         filter.min_spot_size=2
         threshold.xds.gain=25
         threshold.xds.global_threshold=100
     }
-    indexing{ #Indexing parameters
+    indexing{
+        stills{
+            refine_candidates_with_known_symmetry=True
+        }
         known_symmetry {
-                space_group = P43212
-                unit_cell = 78.9 78.9 38.1 90 90 90
+            space_group = P43212
+            unit_cell = 78.9 78.9 38.1 90 90 90
         }
-        method=real_space_grid_search
         refinement_protocol.d_min_start=1.7
-    }
-    refinement { #Refinement parameters; currently disabled
-        parameterisation{
-                beam.fix=all
-            detector.fix_list=Dist,Tau1
-            auto_reduction{
-                action=fix
-                min_nref_per_parameter=1
-            }
-            crystal {
-                    unit_cell {
-                        restraints {
-                            tie_to_target{
-                                values=78.9,78.9,38.1,90,90,90
-                            sigmas=1,1,1,0,0,0
-                        }
-                    }
-                }
-            }
-        }
-    }
-    integration{ #Integration parameters; currently disabled
-        integrator=stills
-        profile.fitting=False
-        background {
-            algorithm=simple
-            simple {
-                model.algorithm = linear2d
-                outlier.algorithm = plane
-            }
-        }
-    }
-    profile {
-        gaussian_rs {
-            min_spots.overall = 0
-        }
     }
     ```
 This can be submitted to `cctbx.xfel.xtc_process` in the format
@@ -210,6 +167,17 @@ which on average is approximately 2 images per second. Ideally we should see a l
 
 
 Performing linear extrapolation allows us to determine an estimated TTF (time-to-finish) for this job. For the above processed image count and times we can determine that for 100k events to process, the single node will take approximately 840 minutes (about 13 hours), and the 10 node job should take approximately 140 minutes. However, this scaling is an average, and dependenig upon the number of events counted at specific points in the code this value can vary by a large margin.
+
+
+## Metrology
+The next step in the process is to refine the CsPad detector metrology. This is performed on a subset of the images (`n_subset=1000`) which are chosen at random. The data will then be refined to a max hierarchy level of 2 (full, quad, 2x1), starting on the inner-most panels and expanding outwards over time (`method=expanding`). We want images with strong reflections on the edge panels, as to include high-resolution spatial data (`n_refl_panel_list=10,26,42,58 n_subset_method=n_refl`). Filtering by RMS deviation is disabled, as the `method=expanding` mode does not currently support this.
+    ``` bash
+    cspad.cbf_metrology tag=013_100 ./../r0113/013/out/ n_subset=1000 \
+    n_refl_panel_list=10,26,42,58 n_subset_method=n_refl refine_to_hierarchy_level=2\
+    method=expanding rmsd_filter.enable=False
+    ```
+Following the successful completion of this, new files will be generated, of which `0-end.data` can be used as the new metrology file for the chosen detector. Alternatively, to avoid deploying this to the `calib` directory, by specifiying the PHIL parameter `input.reference_geometry=/full/path/to/metrology/<tag>_<n_subset>_refined_experiments_step7_level2json` this file will be used by the spotfinding, indexing, integration, and the following merging steps.
+
 
 ---
 To check the performance of the code run the `grep start *.txt | wc -l` in the `rXYZ/<tag>/out/debug` directory. This will list the number of files processed at any instance of time. If the total number of events are known, an estimate of the overall time required can be estimated by taking the change in event-number of time.
