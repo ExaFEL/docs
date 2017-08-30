@@ -40,7 +40,7 @@ Firstly, we must ensure that the environment is correctly initialised to process
 6. Install the following additional dependencies for building and running psana and cctbx:
 
     ```
-    conda install h5py mpich2 wxpython pil libtiff
+    conda install h5py mpich2 wxpython pillow libtiff
     ```
 
 7. Create a permanent location to install and build cctbx (referred to as `$PERM` in the following steps):
