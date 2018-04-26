@@ -13,9 +13,10 @@ As a quick guide, I will outline the steps required for this, and introduce exam
 Firstly, we must ensure that the environment is correctly initialised to process the data. The following steps are a summary of those given for [psana](https://confluence.slac.stanford.edu/display/PSDM/Offsite+Installation#OffsiteInstallation-InstallationofaSingleCondaEnvironment), and for [cctbx.xfel](http://viper.lbl.gov/cctbx.xfel/index.php/Installation). It is encouraged to read the documentation at these locations for further information. The following commands assume a bash environment by default (alternative shells should also work, with alternative instructions given where necessary).
 
 1. Install [Miniconda](https://conda.io/miniconda.html) for Python 2.7.
-2. Once installed, update the conda installation:
+2. Once installed, source the conda installation and update the base environment:
 
     ```bash
+     source ./miniconda/etc/profile.d/conda.sh
      conda update -y conda
      ```
 
@@ -28,7 +29,7 @@ Firstly, we must ensure that the environment is correctly initialised to process
 4. Activate the newly created conda environment:
 
     ```bash
-    source activate myEnv
+    conda activate myEnv
     ```
 
 5. Install psana from the LCLS conda channel, replacing `X` with the appropriate RH Linux version {`5,6,7`}:
@@ -40,7 +41,9 @@ Firstly, we must ensure that the environment is correctly initialised to process
 6. Install the following additional dependencies for building and running psana and cctbx:
 
     ```
-    conda install h5py mpich2 wxpython pillow libtiff
+    conda install future h5py mpich2 wxpython pillow libtiff mock pytest jinja2 scikit-learn tabulate
+    conda install --channel conda-forge orderedset
+    python -m pip install procrunner
     ```
 
 7. Create a permanent location to install and build cctbx (referred to as `$PERM` in the following steps):
