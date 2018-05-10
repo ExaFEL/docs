@@ -77,8 +77,8 @@ Firstly, we must ensure that the environment is correctly initialised to process
 11. Download and build the cctbx.xfel packages using the conda environment activated python. This step assumes the end-user does not have access to the LBNL system **cci**, and so the user must also request access to the [phenix](http://phenix-online.org/) software packages (unzipped to any directory, henceforth called `$PHENIX_DIR` ).
 
     ```bash
-    python bootstrap.py hot --builder=dials --sfuser=<githubusername>
-    python bootstrap.py update --builder=dials --sfuser=<githubusername>
+    python bootstrap.py hot --builder=xfel --sfuser=<githubusername>
+    python bootstrap.py update --builder=xfel --sfuser=<githubusername>
     mkdir ./modules/cxi_xdr_xes
     cp -r $PHENIX_DIR/modules/labelit ./modules
     ```
