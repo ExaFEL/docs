@@ -74,19 +74,17 @@ Firstly, we must ensure that the environment is correctly initialised to process
     wget https://raw.githubusercontent.com/cctbx/cctbx_project/master/libtbx/auto_build/bootstrap.py --no-check-certificate
     ```
 
-11. Download and build the cctbx.xfel packages using the conda environment activated python. This step assumes the end-user does not have access to the LBNL system **cci**, and so the user must also request access to the [phenix](http://phenix-online.org/) software packages (unzipped to any directory, henceforth called `$PHENIX_DIR` ).
+11. Download and build the cctbx.xfel packages using the conda environment activated python.
 
     ```bash
-    python bootstrap.py hot --builder=xfel --sfuser=<githubusername>
-    python bootstrap.py update --builder=xfel --sfuser=<githubusername>
-    mkdir ./modules/cxi_xdr_xes
-    cp -r $PHENIX_DIR/modules/labelit ./modules
+    python bootstrap.py hot --builder=dials
+    python bootstrap.py update --builder=dials
     ```
 
 12. Assuming C++ compilers exist on the path, the following step will build the XFEL version of cctbx; specify the number of available cores to enable parallel compilation:
 
     ```bash
-    python bootstrap.py build --builder=xfel --with-python=`which python` --nproc=<# cores available for compile>
+    python bootstrap.py build --builder=dials --with-python=`which python` --nproc=<# cores available for compile>
     ```
 13. The path environment variables are set up by running the following command:
 
