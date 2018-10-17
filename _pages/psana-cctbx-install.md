@@ -41,7 +41,7 @@ Firstly, we must ensure that the environment is correctly initialised to process
 6. Install the following additional dependencies for building and running psana and cctbx:
 
     ```
-    conda install future h5py mpich2 wxpython pillow libtiff mock pytest jinja2 scikit-learn tabulate
+    conda install future h5py mpich2 wxpython pillow libtiff mock pytest jinja2 scikit-learn tabulate tqdm
     conda install --channel conda-forge orderedset
     python -m pip install procrunner
     ```
