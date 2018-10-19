@@ -102,8 +102,9 @@ With the above steps the psana-cctbx.xfel build should now be installed, with al
 
 ### Alternate step 6 for rh6
 
-For rh6, after installing psana-conda, uninstall the mpi it came with:
+For rh6, after installing psana-conda, uninstall the mpi it came with and reinstall mpi4py:
 ```bash
 conda uninstall openmpi mpi4py --force
+conda install mpi4py
 ```
-Then proceed with step 6 as listed, which will install mpich2 for multiprocessing with MPI.
+Then proceed with step 6 as listed.
