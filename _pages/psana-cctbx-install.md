@@ -38,13 +38,14 @@ Firstly, we must ensure that the environment is correctly initialised to process
     conda install -y --channel lcls-rhelX psana-conda
     ```
 
-6. Install the following additional dependencies for building and running psana and cctbx:
+6. Install the following additional dependencies for building and running psana and cctbx*:
 
     ```
     conda install future h5py mpich2 wxpython pillow libtiff mock pytest jinja2 scikit-learn tabulate tqdm
     conda install --channel conda-forge orderedset
     python -m pip install procrunner
     ```
+    \*see alternate instructions for rh6 below
 
 7. Create a permanent location to install and build cctbx (referred to as `$PERM` in the following steps):
 
@@ -98,3 +99,11 @@ Firstly, we must ensure that the environment is correctly initialised to process
     ```
 
 With the above steps the psana-cctbx.xfel build should now be installed, with all accessible commands working. A script for the above commands can be found [here](https://raw.githubusercontent.com/ExaFEL/exafel_project/master/bin/install.sh).
+
+### Alternate step 6 for rh6
+
+For rh6, after installing psana-conda, uninstall the mpi it came with:
+```bash
+conda uninstall openmpi mpi4py --force
+```
+Then proceed with step 6 as listed, which will install mpich2 for multiprocessing with MPI.
