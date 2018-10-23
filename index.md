@@ -7,7 +7,8 @@ This landing page for the ExaFEL project will feature an updated list of the nec
 <br/>
 
 ## Getting started
-  - [Software installation](psana-cctbx-install): steps for performing the installation of the data analysis software pipeline.
+  - [Software installation with PSANA-1](psana-cctbx-install): steps for performing the installation of the data analysis software pipeline.
+   - [Software installation with PSANA-2](psana2-cctbx-install): Steps for installing CCTBX with PSANA-2 on Cori PII
   - Software build tests: Test routines to ensure the data analysis software pipeline has been successfully built. Currently in progress.
 
 <br/>
