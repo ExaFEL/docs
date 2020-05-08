@@ -13,11 +13,12 @@ As a quick guide, I will outline the steps required for this, and introduce exam
 Firstly, we must ensure that the environment is correctly initialised to process the data. The following steps are a summary of those given for [psana](https://confluence.slac.stanford.edu/display/PSDM/Offsite+Installation#OffsiteInstallation-InstallationofaSingleCondaEnvironment), and for [cctbx.xfel](http://viper.lbl.gov/cctbx.xfel/index.php/Installation). It is encouraged to read the documentation at these locations for further information. The following commands assume a bash environment by default (alternative shells should also work, with alternative instructions given where necessary).
 
 1. Install [Miniconda](https://conda.io/miniconda.html) for Python 2.7.
-2. Once installed, source the conda installation and update the base environment:
+2. Once installed, source the conda installation and update the base environment (note, psana-conda needs packages in the 'free' channel which has been deprecated, so we restore it here):
 
     ```bash
      source ./miniconda/etc/profile.d/conda.sh
      conda update -y conda
+     conda config --set restore_free_channel true
      ```
 
 3. Create a conda environment for the installation:
